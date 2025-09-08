@@ -1,23 +1,20 @@
-<!DOCT <title>Elohim Fitness Academia - Login Administrativo</title>
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elohim Fitness Academia - Login Administrativo</title>
     <meta name="description"
         content="Login administrativo da Academia Elohim Fitness - Acesso seguro ao painel de gerenciamento de feedbacks">
-    <meta name="keywords" content="academia, elohim, fitness, login, administrativo, painel, acesso seguro">html>
-    <html lang="pt-BR">
-
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Eloin Fitness Academia - Login Administrativo</title>
-        <meta name="description"
-            content="Login administrativo da Academia Eloin Fitness - Acesso seguro ao painel de gerenciamento de feedbacks">
-        <meta name="keywords" content="academia, eloin, fitness, login, administrativo, painel, acesso seguro">
-        <meta name="author" content="Academia Eloin Fitness">
-        <meta name="robots" content="noindex, nofollow">
-        <meta name="language" content="Portuguese">
-        <meta property="og:title" content="Elohim Fitness Academia - Login Administrativo">
-        <meta property="og:description" content="Login administrativo da Academia Elohim Fitness">
-        <meta property="og:type" content="website">
-        <meta property="og:site_name" content="Academia Elohim Fitness">
+    <meta name="keywords" content="academia, elohim, fitness, login, administrativo, painel, acesso seguro">
+    <meta name="author" content="Academia Elohim Fitness">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="language" content="Portuguese">
+    <meta property="og:title" content="Elohim Fitness Academia - Login Administrativo">
+    <meta property="og:description" content="Login administrativo da Academia Elohim Fitness">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Academia Elohim Fitness">
         <link rel="icon" type="image/x-icon" href="/favicon_io/favicon.ico">
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon_io/favicon-32x32.png">
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon_io/favicon-16x16.png">
@@ -162,7 +159,7 @@
 
     <body>
         <div class="login-container">
-            <h1>🔐 Academia Eloin Fitness - Login</h1>
+            <h1>🔐 Academia Elohim Fitness - Login</h1>
             <form id="loginForm">
                 <div class="form-group">
                     <label for="username">Usuário:</label>
@@ -172,10 +169,10 @@
                     <label for="password">Senha:</label>
                     <input type="password" id="password" name="password" required>
                 </div>
-                <button type="submit" class="login-btn">🏋️ Entrar na Academia Eloin</button>
+                <button type="submit" class="login-btn">🏋️ Entrar na Academia Elohim</button>
             </form>
             <div id="error-message" class="error-message"></div>
-            <a href="/" class="back-link">← Voltar ao Formulário - Eloin Fitness</a>
+            <a href="/" class="back-link">← Voltar ao Formulário - Elohim Fitness</a>
         </div>
 
         <script>
@@ -204,12 +201,12 @@
                         window.location.href = '/painel';
                     } else {
                         // Login falhou
-                        errorDiv.textContent = result.message || 'Credenciais inválidas para Academia Eloin Fitness';
+                        errorDiv.textContent = result.message || 'Credenciais inválidas para Academia Elohim Fitness';
                         errorDiv.style.display = 'block';
                     }
                 } catch (error) {
                     console.error('Erro no login:', error);
-                    errorDiv.textContent = 'Erro ao fazer login na Academia Eloin Fitness. Tente novamente.';
+                    errorDiv.textContent = 'Erro ao fazer login na Academia Elohim Fitness. Tente novamente.';
                     errorDiv.style.display = 'block';
                 }
             });

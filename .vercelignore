@@ -1,0 +1,10 @@
+# Ignore files not needed for deployment
+src/
+config/
+node_modules
+.env.local
+.env.example
+README.md
+FAVICON_README.txt
+.DS_Store
+*.log

@@ -25,9 +25,10 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: process.env.NODE_ENV === 'production',
+        secure: false, // Temporariamente false para debug no Vercel
         maxAge: 24 * 60 * 60 * 1000,
-        sameSite: 'lax'
+        sameSite: 'lax',
+        httpOnly: true
     }
 }));
 
@@ -58,7 +59,15 @@ async function connectToDatabase() {
 
 // Rota para verificar status de autenticação
 app.get('/api/auth/status', (req, res) => {
-    res.json({ authenticated: !!req.session.authenticated });
+    console.log('Verificando status de autenticação:', {
+        sessionID: req.sessionID,
+        authenticated: !!req.session.authenticated,
+        session: req.session
+    });
+    res.json({
+        authenticated: !!req.session.authenticated,
+        sessionID: req.sessionID
+    });
 });
 
 // Rota para enviar feedback

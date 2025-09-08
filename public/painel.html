@@ -1672,23 +1672,35 @@
             try {
                 // Verificar se está autenticado
                 const authResponse = await fetch('/api/auth/status');
-                const authData = await authResponse.json();
 
-                if (!authData.authenticated) {
-                    // Redirecionar para login se não autenticado
-                    window.location.href = '/login';
+                if (!authResponse.ok) {
+                    console.error('Erro ao verificar autenticação:', authResponse.status);
+                    // Tentar carregar feedbacks mesmo assim, o erro 401 será tratado lá
+                    await loadFeedbacks();
                     return;
                 }
 
+                const authData = await authResponse.json();
+                console.log('Status de autenticação:', authData);
+
+                if (!authData.authenticated) {
+                    console.log('Usuário não autenticado, redirecionando...');
+                    // Aguardar um pouco antes de redirecionar para evitar loop
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 1000);
+                    return;
+                }
+
+                console.log('Usuário autenticado, carregando feedbacks...');
                 // Se autenticado, carregar feedbacks
                 await loadFeedbacks();
             } catch (error) {
                 console.error('Erro ao verificar autenticação:', error);
-                window.location.href = '/login';
+                // Tentar carregar feedbacks mesmo com erro de verificação
+                await loadFeedbacks();
             }
-        }
-
-        async function loadFeedbacks() {
+        } async function loadFeedbacks() {
             try {
                 const response = await fetch('/api/feedbacks');
                 if (!response.ok) {

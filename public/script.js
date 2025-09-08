@@ -104,10 +104,14 @@ document.getElementById('feedbackForm').addEventListener('submit', function (eve
         .then(response => response.json())
         .then(result => {
             console.log('Sucesso:', result);
-            // Redirecionar para o login após envio bem-sucedido
-            setTimeout(() => {
-                window.location.href = '/login';
-            }, 2000); // Pequeno delay para mostrar a mensagem de sucesso
+
+            // Resetar botão
+            submitButton.innerHTML = originalText;
+            submitButton.disabled = false;
+            submitButton.style.opacity = '1';
+
+            // Mostrar modal de agradecimento
+            showThankYouModal();
         })
         .catch(error => {
             console.error('Erro:', error);
@@ -177,5 +181,81 @@ document.getElementById('feedbackForm').addEventListener('submit', function (eve
         submitButton.innerHTML = originalText;
         submitButton.disabled = false;
         submitButton.style.opacity = '1';
+    }
+});
+
+// Função para mostrar o modal de agradecimento
+function showThankYouModal() {
+    const modal = document.getElementById('thankYouModal');
+    const particles = document.querySelector('.modal-particles');
+
+    // Limpar partículas existentes
+    particles.innerHTML = '';
+
+    // Criar partículas douradas
+    for (let i = 0; i < 20; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'modal-particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 3 + 's';
+        particle.style.animationDuration = (Math.random() * 2 + 2) + 's';
+        particles.appendChild(particle);
+    }
+
+    // Mostrar modal
+    modal.classList.add('show');
+
+    // Focar no botão de fechar para acessibilidade
+    setTimeout(() => {
+        document.querySelector('.modal-close-btn').focus();
+    }, 300);
+}
+
+// Função para fechar o modal
+function closeModal() {
+    const modal = document.getElementById('thankYouModal');
+    modal.classList.remove('show');
+
+    // Limpar formulário após fechar o modal
+    setTimeout(() => {
+        document.getElementById('feedbackForm').reset();
+
+        // Remover mensagens de erro se existirem
+        const errorMessages = document.querySelectorAll('.error-message');
+        errorMessages.forEach(msg => msg.remove());
+
+        // Resetar estilos dos campos
+        const fields = document.querySelectorAll('input, select, textarea');
+        fields.forEach(field => {
+            field.style.borderColor = '';
+        });
+
+        // Scroll para o topo
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }, 300);
+}
+
+// Fechar modal com ESC
+document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') {
+        const modal = document.getElementById('thankYouModal');
+        if (modal.classList.contains('show')) {
+            closeModal();
+        }
+    }
+});
+
+// Fechar modal clicando fora do conteúdo
+document.addEventListener('click', function (event) {
+    const modal = document.getElementById('thankYouModal');
+    const modalContent = document.querySelector('.modal-content');
+
+    if (modal.classList.contains('show') &&
+        !modalContent.contains(event.target) &&
+        event.target === modal) {
+        closeModal();
     }
 });

@@ -2,7 +2,6 @@
   "name": "eloin-fitness-academia",
   "version": "1.0.0",
   "description": "Sistema completo de feedback e gestão para Academia Eloin Fitness - Formulário público e painel administrativo",
-  "main": "src/server.js",
   "author": "Academia Eloin Fitness",
   "license": "ISC",
   "keywords": [
@@ -21,10 +20,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/joehadest/eloin.git"
-  },
-  "scripts": {
-    "start": "node src/server.js",
-    "dev": "node src/server.js"
   },
   "dependencies": {
     "cors": "^2.8.5",

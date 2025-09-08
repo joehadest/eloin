@@ -56,6 +56,11 @@ async function connectToDatabase() {
 
 // Rotas da API
 
+// Rota para verificar status de autenticação
+app.get('/api/auth/status', (req, res) => {
+    res.json({ authenticated: !!req.session.authenticated });
+});
+
 // Rota para enviar feedback
 app.post('/api/feedback', async (req, res) => {
     try {

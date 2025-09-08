@@ -1668,10 +1668,35 @@
     <script>
         let allFeedbacks = [];
 
+        async function checkAuthAndLoadFeedbacks() {
+            try {
+                // Verificar se está autenticado
+                const authResponse = await fetch('/api/auth/status');
+                const authData = await authResponse.json();
+
+                if (!authData.authenticated) {
+                    // Redirecionar para login se não autenticado
+                    window.location.href = '/login';
+                    return;
+                }
+
+                // Se autenticado, carregar feedbacks
+                await loadFeedbacks();
+            } catch (error) {
+                console.error('Erro ao verificar autenticação:', error);
+                window.location.href = '/login';
+            }
+        }
+
         async function loadFeedbacks() {
             try {
                 const response = await fetch('/api/feedbacks');
                 if (!response.ok) {
+                    if (response.status === 401) {
+                        // Não autenticado, redirecionar para login
+                        window.location.href = '/login';
+                        return;
+                    }
                     throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
                 }
                 allFeedbacks = await response.json();
@@ -1876,8 +1901,8 @@
             displayStats(allFeedbacks);
         });
 
-        // Carregar feedbacks ao carregar a página
-        loadFeedbacks();
+        // Carregar feedbacks ao carregar a página (com verificação de auth)
+        checkAuthAndLoadFeedbacks();
 
         // Função para alternar o estado do accordion
         function toggleAccordion(index) {

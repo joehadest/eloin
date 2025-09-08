@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eloin Fitness Academia - Painel Administrativo</title>
+    <meta name="description"
+        content="Painel administrativo da Academia Eloin Fitness - Gerencie feedbacks e avaliações dos clientes. Acesso restrito aos administradores.">
+    <meta name="keywords"
+        content="academia, eloin, fitness, painel administrativo, feedbacks, avaliações, dashboard, administração">
+    <meta name="author" content="Academia Eloin Fitness">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="language" content="Portuguese">
+    <meta property="og:title" content="Eloin Fitness Academia - Painel Administrativo">
+    <meta property="og:description" content="Painel administrativo da Academia Eloin Fitness">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Academia Eloin Fitness">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --primary-color: #ffd700;
+            --secondary-color: #e6c200;
+            --accent-color: #d4af00;
+            --dark-bg: #121212;
+            --darker-bg: #1a1a1a;
+            --card-bg: linear-gradient(145deg, #1e1e1e, #2a2a2a);
+            --text-color: #ffffff;
+            --text-secondary: #cccccc;
+            --border-color: #333;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            --border-radius: 15px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #121212 0%, #1a1a1a 50%, #121212 100%);
+            min-height: 100vh;
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .painel-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        header h1 {
+            font-size: 3em;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ffd700, #e6c200);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: 1px;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 1.2em;
+            font-weight: 300;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 24px;
+            background: rgba(255, 215, 0, 0.1);
+            color: var(--primary-color);
+            text-decoration: none;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 215, 0, 0.2);
+            transform: translateY(-2px);
+            border-color: var(--primary-color);
+        }
+
+        /* Stats Section */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.8s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ffd700, #e6c200);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card:nth-child(1)::before {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .stat-card:nth-child(2)::before {
+            background: linear-gradient(90deg, #f093fb, #f5576c);
+        }
+
+        .stat-card:nth-child(3)::before {
+            background: linear-gradient(90deg, #4facfe, #00f2fe);
+        }
+
+        .stat-card:nth-child(4)::before {
+            background: linear-gradient(90deg, #43e97b, #38f9d7);
+        }
+
+        .stat-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+
+        .stat-number {
+            font-size: 3em;
+            font-weight: 800;
+            background: linear-gradient(45deg, #ffd700, #e6c200);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 1.1em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .filter-section h3 {
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 1em;
+        }
+
+        .filter-group select {
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            background-color: #2c2c2c;
+            color: var(--text-color);
+            font-size: 1em;
+            transition: all 0.3s ease;
+            min-width: 150px;
+        }
+
+        .filter-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background-color: #333;
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1);
+        }
+
+        .clear-filters-btn {
+            padding: 12px 24px;
+            background: linear-gradient(145deg, #ffd700, #e6c200);
+            color: #121212;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9em;
+        }
+
+        .clear-filters-btn:hover {
+            background: linear-gradient(145deg, #e6c200, #d4af00);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
+        }
+
+        /* Accordion Styles */
+        .accordion-item {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            margin-bottom: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .accordion-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.8);
+        }
+
+        .accordion-header {
+            padding: 20px 25px;
+            background: linear-gradient(145deg, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0.05));
+            border: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--text-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .accordion-header:hover {
+            background: linear-gradient(145deg, rgba(255, 215, 0, 0.15), rgba(255, 215, 0, 0.08));
+        }
+
+        .accordion-header::after {
+            content: '▶';
+            font-size: 1.2em;
+            color: var(--primary-color);
+            transition: transform 0.3s ease;
+            margin-left: 15px;
+        }
+
+        .accordion-item.active .accordion-header::after {
+            transform: rotate(90deg);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+            background: rgba(255, 215, 0, 0.02);
+        }
+
+        .accordion-item.active .accordion-content {
+            max-height: 1000px;
+            /* Ajuste conforme necessário */
+        }
+
+        .accordion-body {
+            padding: 25px;
+            border-top: 1px solid rgba(255, 215, 0, 0.1);
+        }
+
+        .accordion-title {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        .accordion-meta {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+        }
+
+        .meta-item strong {
+            color: var(--primary-color);
+        }
+
+        .expand-all-btn {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: #121212;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .expand-all-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .accordion-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 215, 0, 0.1);
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn.primary {
+            background: var(--primary-color);
+            color: #121212;
+        }
+
+        .action-btn.secondary {
+            background: rgba(255, 215, 0, 0.1);
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .feedback-name {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin: 0;
+        }
+
+        .feedback-date {
+            color: #666;
+            font-size: 0.95em;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .feedback-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .feedback-field {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: rgba(255, 215, 0, 0.05);
+            border-radius: 12px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .feedback-field label {
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 0.95em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .feedback-field span {
+            color: var(--text-secondary);
+            font-size: 1em;
+            line-height: 1.5;
+        }
+
+        .rating-stars {
+            color: #ffd700;
+            font-size: 1.2em;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .nps-score {
+            font-size: 1.3em;
+            font-weight: 800;
+            color: var(--success-color);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .atividades-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .atividade-tag {
+            color: var(--text-color);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Loading and Error States */
+        .loading {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-secondary);
+            font-size: 1.3em;
+            font-weight: 300;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 50%;
+            border-top-color: #ffd700;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 15px;
+        }
+
+        .error {
+            background: linear-gradient(145deg, rgba(255, 68, 68, 0.1), rgba(255, 68, 68, 0.2));
+            color: #ff6b6b;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 68, 68, 0.3);
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .error strong {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .painel-container {
+                padding: 20px 15px;
+            }
+
+            header h1 {
+                font-size: 2.2em;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .stat-card {
+                padding: 25px;
+            }
+
+            .stat-number {
+                font-size: 2.5em;
+            }
+
+            .filter-group {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 15px;
+            }
+
+            .filter-group select {
+                width: 100%;
+            }
+
+            .feedback-content {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .feedback-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+
+        /* Enhanced Hover Effects */
+        .stat-card:hover .stat-icon {
+            transform: scale(1.1);
+            transition: transform 0.3s ease;
+        }
+
+        .feedback-item:hover .feedback-name {
+            color: var(--primary-color);
+            transition: color 0.3s ease;
+        }
+
+        /* Improved Focus States */
+        .filter-group select:focus,
+        .clear-filters-btn:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        /* Better Typography */
+        h1,
+        h3 {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            letter-spacing: -0.5px;
+        }
+
+        /* Subtle Animations */
+        .stat-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .stat-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .stat-card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .stat-card:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        .feedback-item:nth-child(odd) {
+            animation-delay: 0.1s;
+        }
+
+        .feedback-item:nth-child(even) {
+            animation-delay: 0.2s;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 215, 0, 0.3);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 215, 0, 0.5);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="painel-container">
+        <header style="text-align: center; margin-bottom: 30px;">
+            <h1>🏋️ Academia Eloin Fitness - Painel Administrativo</h1>
+            <p>Gerencie todos os feedbacks dos seus alunos e clientes</p>
+            <div style="margin-top: 20px;">
+                <a href="/" class="back-link">← Voltar ao Formulário</a>
+                <button id="logout-btn" class="clear-filters-btn"
+                    style="margin-left: 20px; background: linear-gradient(45deg, #ff6b6b, #ee5a52);">🚪 Sair do
+                    Sistema</button>
+            </div>
+        </header>
+
+        <div id="stats" class="stats">
+            <!-- Estatísticas serão inseridas aqui -->
+        </div>
+
+        <div class="filter-section">
+            <h3>🔍 Filtros - Academia Eloin Fitness</h3>
+            <div class="filter-group">
+                <label for="filter-rating">⭐ Filtrar por Avaliação Geral - Eloin Fitness:</label>
+                <select id="filter-rating">
+                    <option value="">Todas as avaliações</option>
+                    <option value="5">5 estrelas - Excelente</option>
+                    <option value="4">4 estrelas - Muito bom</option>
+                    <option value="3">3 estrelas - Bom</option>
+                    <option value="2">2 estrelas - Regular</option>
+                    <option value="1">1 estrela - Ruim</option>
+                </select>
+
+                <label for="filter-nps">📊 Filtrar por NPS - Eloin Fitness:</label>
+                <select id="filter-nps">
+                    <option value="">Todos os tipos</option>
+                    <option value="9-10">🌟 Promotores (9-10)</option>
+                    <option value="7-8">😐 Neutros (7-8)</option>
+                    <option value="0-6">😞 Detratores (0-6)</option>
+                </select>
+
+                <button id="clear-filters" class="clear-filters-btn">🧹 Limpar Filtros - Eloin</button>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 20px;">
+            <button id="expand-all-btn" class="expand-all-btn">📂 Expandir Todos os Feedbacks - Eloin</button>
+        </div>
+
+        <div id="loading" class="loading">⏳ Carregando feedbacks da Academia Eloin Fitness...</div>
+        <div id="error" class="error" style="display: none;">
+            <strong>❌ Ops! Algo deu errado na Academia Eloin Fitness</strong>
+            <p>Não foi possível carregar os feedbacks. Tente novamente mais tarde.</p>
+        </div>
+        <div id="feedbacks-list">
+            <!-- Feedbacks serão inseridos aqui -->
+        </div>
+    </div>
+
+    <script>
+        let allFeedbacks = [];
+
+        async function loadFeedbacks() {
+            try {
+                const response = await fetch('/api/feedbacks');
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
+                }
+                allFeedbacks = await response.json();
+                displayFeedbacks(allFeedbacks);
+                displayStats(allFeedbacks);
+            } catch (error) {
+                console.error('Erro ao carregar feedbacks:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+
+                let errorMessage = '❌ Erro ao carregar feedbacks.';
+                if (error.message.includes('fetch')) {
+                    errorMessage += ' Verifique se o servidor está rodando.';
+                } else if (error.message.includes('HTTP')) {
+                    errorMessage += ' Problema na conexão com o servidor.';
+                } else {
+                    errorMessage += ' Tente novamente mais tarde.';
+                }
+
+                document.getElementById('error').innerHTML = `
+                    <strong>Ops! Algo deu errado</strong>
+                    <p>${errorMessage}</p>
+                    <details style="margin-top: 10px; font-size: 0.9em; color: #ccc;">
+                        <summary>Detalhes técnicos</summary>
+                        <code style="background: rgba(0,0,0,0.2); padding: 5px; border-radius: 5px; display: block; margin-top: 5px;">${error.message}</code>
+                    </details>
+                `;
+            }
+        }
+
+        function displayStats(feedbacks) {
+            const totalFeedbacks = feedbacks.length;
+            const avgRating = feedbacks.length > 0 ? (feedbacks.reduce((sum, f) => sum + parseInt(f.rating), 0) / totalFeedbacks).toFixed(1) : 0;
+            const avgNPS = feedbacks.length > 0 ? (feedbacks.reduce((sum, f) => sum + parseInt(f.nps), 0) / totalFeedbacks).toFixed(1) : 0;
+
+            const promoters = feedbacks.filter(f => parseInt(f.nps) >= 9).length;
+            const detractors = feedbacks.filter(f => parseInt(f.nps) <= 6).length;
+            const npsScore = totalFeedbacks > 0 ? (((promoters - detractors) / totalFeedbacks) * 100).toFixed(1) : 0;
+
+            document.getElementById('stats').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-number">${totalFeedbacks}</div>
+                    <div class="stat-label">Total de Feedbacks</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⭐</div>
+                    <div class="stat-number">${avgRating}</div>
+                    <div class="stat-label">Avaliação Média</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📈</div>
+                    <div class="stat-number">${avgNPS}/10</div>
+                    <div class="stat-label">NPS Médio</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-number">${npsScore}%</div>
+                    <div class="stat-label">Score NPS</div>
+                </div>
+            `;
+        }
+
+        function displayFeedbacks(feedbacks) {
+            document.getElementById('loading').style.display = 'none';
+
+            if (feedbacks.length === 0) {
+                document.getElementById('feedbacks-list').innerHTML = `
+                    <div style="text-align: center; padding: 80px 20px; color: var(--text-secondary);">
+                        <div style="font-size: 4em; margin-bottom: 20px;">📭</div>
+                        <h3 style="color: var(--primary-color); margin-bottom: 10px; font-weight: 300;">Nenhum feedback encontrado na Academia Eloin</h3>
+                        <p style="font-size: 1.1em; opacity: 0.8;">Tente ajustar os filtros ou aguarde novos feedbacks dos nossos alunos!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const feedbacksHtml = feedbacks.map((feedback, index) => {
+                const date = new Date(feedback.timestamp).toLocaleString('pt-BR');
+                const atividades = Array.isArray(feedback.atividades) ? feedback.atividades : [feedback.atividades].filter(Boolean);
+
+                return `
+                    <div class="accordion-item" data-index="${index}">
+                        <button class="accordion-header" onclick="toggleAccordion(${index})">
+                            <div>
+                                <div class="accordion-title">${feedback.name}</div>
+                                <div class="accordion-meta">
+                                    <span class="meta-item">📧 <strong>${feedback.email}</strong></span>
+                                    <span class="meta-item">⭐ ${feedback.rating}/5</span>
+                                    <span class="meta-item">📊 NPS: ${feedback.nps}/10</span>
+                                    <span class="meta-item">📅 ${date}</span>
+                                </div>
+                            </div>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="accordion-body">
+                                <div class="feedback-content">
+                                    <div class="feedback-field">
+                                        <label>📧 E-mail:</label>
+                                        <span>${feedback.email}</span>
+                                    </div>
+                                    <div class="feedback-field">
+                                        <label>🎂 Idade:</label>
+                                        <span>${feedback.idade}</span>
+                                    </div>
+                                    <div class="feedback-field">
+                                        <label>⏰ Tempo como cliente:</label>
+                                        <span>${feedback['tempo-cliente']}</span>
+                                    </div>
+                                    <div class="feedback-field">
+                                        <label>🏋️ Frequência:</label>
+                                        <span>${feedback.frequencia}</span>
+                                    </div>
+                                    <div class="feedback-field">
+                                        <label>🎯 Atividades:</label>
+                                        <div class="atividades-list">
+                                            ${atividades.map(atividade => `<span class="atividade-tag">${atividade}</span>`).join('')}
+                                        </div>
+                                    </div>
+                                    <div class="feedback-field">
+                                        <label>🏋️ Avaliação Equipamentos:</label>
+                                        <span class="rating-stars">${'★'.repeat(feedback['rating-equipamentos'])}${'☆'.repeat(5 - feedback['rating-equipamentos'])}</span>
+                                    </div>
+                                    <div class="feedback-field">
+                                        <label>🧹 Avaliação Limpeza:</label>
+                                        <span class="rating-stars">${'★'.repeat(feedback['rating-limpeza'])}${'☆'.repeat(5 - feedback['rating-limpeza'])}</span>
+                                    </div>
+                                    <div class="feedback-field">
+                                        <label>👥 Avaliação Atendimento:</label>
+                                        <span class="rating-stars">${'★'.repeat(feedback['rating-atendimento'])}${'☆'.repeat(5 - feedback['rating-atendimento'])}</span>
+                                    </div>
+                                    <div class="feedback-field">
+                                        <label>🕐 Avaliação Horários:</label>
+                                        <span class="rating-stars">${'★'.repeat(feedback['rating-horarios'])}${'☆'.repeat(5 - feedback['rating-horarios'])}</span>
+                                    </div>
+                                    <div class="feedback-field">
+                                        <label>🔍 Como conheceu:</label>
+                                        <span>${feedback['como-conheceu']}</span>
+                                    </div>
+                                    <div class="feedback-field">
+                                        <label>📈 NPS:</label>
+                                        <span class="nps-score">${feedback.nps}/10</span>
+                                    </div>
+                                    <div class="feedback-field">
+                                        <label>⭐ Avaliação Geral:</label>
+                                        <span class="rating-stars">${'★'.repeat(feedback.rating)}${'☆'.repeat(5 - feedback.rating)}</span>
+                                    </div>
+                                    ${feedback.melhorias ? `
+                                        <div class="feedback-field" style="grid-column: 1 / -1;">
+                                            <label>💡 Melhorias:</label>
+                                            <span>${feedback.melhorias}</span>
+                                        </div>
+                                    ` : ''}
+                                    ${feedback.comments ? `
+                                        <div class="feedback-field" style="grid-column: 1 / -1;">
+                                            <label>💬 Comentários:</label>
+                                            <span>${feedback.comments}</span>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                                <div class="accordion-actions">
+                                    <button class="action-btn primary" onclick="copyFeedback(${index})">📋 Copiar</button>
+                                    <button class="action-btn secondary" onclick="printFeedback(${index})">🖨️ Imprimir</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('feedbacks-list').innerHTML = feedbacksHtml;
+        }
+
+        function applyFilters() {
+            const ratingFilter = document.getElementById('filter-rating').value;
+            const npsFilter = document.getElementById('filter-nps').value;
+
+            let filteredFeedbacks = allFeedbacks;
+
+            if (ratingFilter) {
+                filteredFeedbacks = filteredFeedbacks.filter(f => f.rating === ratingFilter);
+            }
+
+            if (npsFilter) {
+                const [min, max] = npsFilter.split('-').map(Number);
+                filteredFeedbacks = filteredFeedbacks.filter(f => {
+                    const nps = parseInt(f.nps);
+                    return nps >= min && nps <= max;
+                });
+            }
+
+            displayFeedbacks(filteredFeedbacks);
+            displayStats(filteredFeedbacks);
+        }
+
+        document.getElementById('filter-rating').addEventListener('change', applyFilters);
+        document.getElementById('filter-nps').addEventListener('change', applyFilters);
+        document.getElementById('clear-filters').addEventListener('click', () => {
+            document.getElementById('filter-rating').value = '';
+            document.getElementById('filter-nps').value = '';
+            displayFeedbacks(allFeedbacks);
+            displayStats(allFeedbacks);
+        });
+
+        // Carregar feedbacks ao carregar a página
+        loadFeedbacks();
+
+        // Função para alternar o estado do accordion
+        function toggleAccordion(index) {
+            const item = document.querySelector(`.accordion-item[data-index="${index}"]`);
+            const isActive = item.classList.contains('active');
+
+            // Fechar todos os accordions abertos
+            document.querySelectorAll('.accordion-item.active').forEach(activeItem => {
+                if (activeItem !== item) {
+                    activeItem.classList.remove('active');
+                }
+            });
+
+            // Alternar o estado do accordion clicado
+            if (isActive) {
+                item.classList.remove('active');
+            } else {
+                item.classList.add('active');
+            }
+        }
+
+        // Função para copiar feedback
+        function copyFeedback(index) {
+            const feedback = allFeedbacks[index];
+            if (!feedback) return;
+
+            const date = new Date(feedback.timestamp).toLocaleString('pt-BR');
+            const atividades = Array.isArray(feedback.atividades) ? feedback.atividades : [feedback.atividades].filter(Boolean);
+
+            const text = `
+FEEDBACK - ACADEMIA ELOIN FITNESS
+========================
+
+Nome: ${feedback.name}
+E-mail: ${feedback.email}
+Idade: ${feedback.idade}
+Tempo como cliente: ${feedback['tempo-cliente']}
+Frequência: ${feedback.frequencia}
+Atividades: ${atividades.join(', ')}
+Avaliação Equipamentos: ${feedback['rating-equipamentos']}/5
+Avaliação Limpeza: ${feedback['rating-limpeza']}/5
+Avaliação Atendimento: ${feedback['rating-atendimento']}/5
+Avaliação Horários: ${feedback['rating-horarios']}/5
+Como conheceu: ${feedback['como-conheceu']}
+NPS: ${feedback.nps}/10
+Avaliação Geral: ${feedback.rating}/5
+${feedback.melhorias ? `Melhorias: ${feedback.melhorias}` : ''}
+${feedback.comments ? `Comentários: ${feedback.comments}` : ''}
+Data: ${date}
+            `.trim();
+
+            navigator.clipboard.writeText(text).then(() => {
+                // Mostrar feedback visual
+                const btn = document.querySelector(`.accordion-item[data-index="${index}"] .action-btn.primary`);
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '✅ Copiado - Eloin!';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                }, 2000);
+            }).catch(err => {
+                console.error('Erro ao copiar:', err);
+                alert('Erro ao copiar feedback da Academia Eloin Fitness para a área de transferência');
+            });
+        }
+
+        // Função para imprimir feedback
+        function printFeedback(index) {
+            const feedback = allFeedbacks[index];
+            if (!feedback) return;
+
+            const date = new Date(feedback.timestamp).toLocaleString('pt-BR');
+            const atividades = Array.isArray(feedback.atividades) ? feedback.atividades : [feedback.atividades].filter(Boolean);
+
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Feedback - ${feedback.name} - Academia Eloin Fitness</title>
+                    <style>
+                        @media print {
+                            body { margin: 0; }
+                        }
+
+                        body {
+                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                            margin: 0;
+                            padding: 30px;
+                            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+                            color: #333;
+                            line-height: 1.6;
+                        }
+
+                        .header {
+                            text-align: center;
+                            background: linear-gradient(135deg, #ffd700 0%, #e6c200 100%);
+                            color: #121212;
+                            padding: 30px 20px;
+                            border-radius: 15px;
+                            margin-bottom: 30px;
+                            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
+                            position: relative;
+                            overflow: hidden;
+                        }
+
+                        .header::before {
+                            content: '🏋️';
+                            font-size: 3em;
+                            position: absolute;
+                            top: 10px;
+                            left: 20px;
+                            opacity: 0.3;
+                        }
+
+                        .header h1 {
+                            margin: 0;
+                            font-size: 2.2em;
+                            font-weight: 700;
+                            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+                        }
+
+                        .header p {
+                            margin: 10px 0 0 0;
+                            font-size: 1.1em;
+                            opacity: 0.9;
+                        }
+
+                        .content {
+                            background: white;
+                            border-radius: 15px;
+                            padding: 30px;
+                            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+                            border: 2px solid #ffd700;
+                        }
+
+                        .field {
+                            margin-bottom: 20px;
+                            padding: 15px;
+                            border-bottom: 1px solid #eee;
+                            display: flex;
+                            align-items: center;
+                        }
+
+                        .field:last-child {
+                            border-bottom: none;
+                        }
+
+                        .field label {
+                            font-weight: 600;
+                            color: #121212;
+                            min-width: 200px;
+                            font-size: 1em;
+                            display: flex;
+                            align-items: center;
+                        }
+
+                        .field label::before {
+                            margin-right: 8px;
+                            font-size: 1.2em;
+                        }
+
+                        .field span {
+                            flex: 1;
+                            font-size: 1em;
+                            color: #555;
+                        }
+
+                        .rating-stars {
+                            color: #ffd700;
+                            font-size: 1.2em;
+                            font-weight: bold;
+                        }
+
+                        .nps-score {
+                            font-weight: bold;
+                            color: #007bff;
+                            font-size: 1.1em;
+                            background: rgba(0, 123, 255, 0.1);
+                            padding: 5px 10px;
+                            border-radius: 8px;
+                        }
+
+                        .atividades-container {
+                            display: flex;
+                            flex-wrap: wrap;
+                            gap: 8px;
+                        }
+
+                        .atividade-tag {
+                            background: linear-gradient(45deg, #ffd700, #e6c200);
+                            color: #121212;
+                            padding: 8px 16px;
+                            border-radius: 20px;
+                            font-size: 0.9em;
+                            font-weight: 500;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.2);
+                            display: inline-block;
+                        }
+
+                        .footer {
+                            text-align: center;
+                            margin-top: 30px;
+                            padding: 20px;
+                            background: linear-gradient(135deg, #121212 0%, #1a1a1a 100%);
+                            color: #ffd700;
+                            border-radius: 10px;
+                            font-size: 0.9em;
+                        }
+
+                        .footer p {
+                            margin: 5px 0;
+                        }
+
+                        .logo {
+                            font-size: 2em;
+                            margin-bottom: 10px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>🏋️ Academia Eloin Fitness</h1>
+                        <p>Feedback de ${feedback.name} - ${date}</p>
+                    </div>
+
+                    <div class="content">
+                        <div class="field">
+                            <label for="nome">👤 Nome:</label>
+                            <span>${feedback.name}</span>
+                        </div>
+
+                        <div class="field">
+                            <label for="email">📧 E-mail:</label>
+                            <span>${feedback.email}</span>
+                        </div>
+
+                        <div class="field">
+                            <label for="idade">🎂 Idade:</label>
+                            <span>${feedback.idade}</span>
+                        </div>
+
+                        <div class="field">
+                            <label for="tempo">⏰ Tempo como cliente:</label>
+                            <span>${feedback['tempo-cliente']}</span>
+                        </div>
+
+                        <div class="field">
+                            <label for="frequencia">📅 Frequência:</label>
+                            <span>${feedback.frequencia}</span>
+                        </div>
+
+                        <div class="field">
+                            <label for="atividades">🎯 Atividades:</label>
+                            <div class="atividades-container">
+                                ${atividades.map(atividade => `<span class="atividade-tag">${atividade}</span>`).join('')}
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label for="equipamentos">🏋️ Avaliação Equipamentos:</label>
+                            <span class="rating-stars">${'★'.repeat(feedback['rating-equipamentos'])}${'☆'.repeat(5 - feedback['rating-equipamentos'])}</span>
+                        </div>
+
+                        <div class="field">
+                            <label for="limpeza">🧹 Avaliação Limpeza:</label>
+                            <span class="rating-stars">${'★'.repeat(feedback['rating-limpeza'])}${'☆'.repeat(5 - feedback['rating-limpeza'])}</span>
+                        </div>
+
+                        <div class="field">
+                            <label for="atendimento">👥 Avaliação Atendimento:</label>
+                            <span class="rating-stars">${'★'.repeat(feedback['rating-atendimento'])}${'☆'.repeat(5 - feedback['rating-atendimento'])}</span>
+                        </div>
+
+                        <div class="field">
+                            <label for="horarios">🕐 Avaliação Horários:</label>
+                            <span class="rating-stars">${'★'.repeat(feedback['rating-horarios'])}${'☆'.repeat(5 - feedback['rating-horarios'])}</span>
+                        </div>
+
+                        <div class="field">
+                            <label for="conheceu">🔍 Como conheceu:</label>
+                            <span>${feedback['como-conheceu']}</span>
+                        </div>
+
+                        <div class="field">
+                            <label for="nps">📊 NPS:</label>
+                            <span class="nps-score">${feedback.nps}/10</span>
+                        </div>
+
+                        <div class="field">
+                            <label for="rating">⭐ Avaliação Geral:</label>
+                            <span class="rating-stars">${'★'.repeat(feedback.rating)}${'☆'.repeat(5 - feedback.rating)}</span>
+                        </div>
+
+                        ${feedback.melhorias ? `
+                        <div class="field">
+                            <label for="melhorias">💡 Melhorias:</label>
+                            <span>${feedback.melhorias}</span>
+                        </div>
+                        ` : ''}
+
+                        ${feedback.comments ? `
+                        <div class="field">
+                            <label for="comments">💬 Comentários:</label>
+                            <span>${feedback.comments}</span>
+                        </div>
+                        ` : ''}
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        // Configurar botão de logout
+        document.getElementById('logout-btn').addEventListener('click', async function () {
+            try {
+                const response = await fetch('/api/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (response.ok) {
+                    window.location.href = '/login';
+                } else {
+                    alert('Erro ao fazer logout da Academia Eloin Fitness');
+                }
+            } catch (error) {
+                console.error('Erro no logout:', error);
+                alert('Erro ao fazer logout da Academia Eloin Fitness');
+            }
+        });
+    </script>
+</body>
+
+</html>

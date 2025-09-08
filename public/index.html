@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eloin Fitness Academia - Formulário de Feedback</title>
+    <meta name="description"
+        content="Academia Eloin Fitness - Formulário de feedback para avaliar nossos serviços. Musculação, cardio, crossfit e muito mais. Sua opinião é importante!">
+    <meta name="keywords"
+        content="academia, eloin, fitness, musculação, cardio, crossfit, avaliação, feedback, academia eloin">
+    <meta name="author" content="Academia Eloin Fitness">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="Portuguese">
+    <meta property="og:title" content="Eloin Fitness Academia - Formulário de Feedback">
+    <meta property="og:description"
+        content="Academia Eloin Fitness - Formulário de feedback para avaliar nossos serviços">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Academia Eloin Fitness">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🏋️ Academia Eloin Fitness</h1>
+            <p>Seu feedback é fundamental para continuarmos evoluindo!</p>
+            <p class="subtitle">Ajude-nos a melhorar nossos serviços de musculação, cardio e crossfit</p>
+        </header>
+        <form id="feedbackForm">
+            <div class="form-container">
+                <div class="two-column">
+                    <div class="form-group">
+                        <label for="name">Nome:</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">E-mail:</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                </div>
+
+                <div class="two-column">
+                    <div class="form-group">
+                        <label for="idade">Idade:</label>
+                        <select id="idade" name="idade" required>
+                            <option value="">Selecione sua faixa etária</option>
+                            <option value="18-25">18-25 anos</option>
+                            <option value="26-35">26-35 anos</option>
+                            <option value="36-45">36-45 anos</option>
+                            <option value="46-55">46-55 anos</option>
+                            <option value="56+">Acima de 56 anos</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="tempo-cliente">Há quanto tempo é nosso cliente?</label>
+                        <select id="tempo-cliente" name="tempo-cliente" required>
+                            <option value="">Selecione</option>
+                            <option value="menos-1-mes">Menos de 1 mês</option>
+                            <option value="1-3-meses">1-3 meses</option>
+                            <option value="3-6-meses">3-6 meses</option>
+                            <option value="6-12-meses">6-12 meses</option>
+                            <option value="1-2-anos">1-2 anos</option>
+                            <option value="mais-2-anos">Mais de 2 anos</option>
+                        </select>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="form-group">
+                    <label>Com que frequência você visita a academia?</label>
+                    <div class="radio-group">
+                        <input type="radio" id="freq-diaria" name="frequencia" value="diaria" required><label
+                            for="freq-diaria">Diariamente</label>
+                        <input type="radio" id="freq-semanal" name="frequencia" value="semanal"><label
+                            for="freq-semanal">3-5x por semana</label>
+                        <input type="radio" id="freq-ocasional" name="frequencia" value="ocasional"><label
+                            for="freq-ocasional">1-2x por semana</label>
+                        <input type="radio" id="freq-rara" name="frequencia" value="rara"><label
+                            for="freq-rara">Esporadicamente</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Quais atividades você mais utiliza? (Selecione todas que se aplicam)</label>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="musculacao" name="atividades" value="musculacao"><label
+                            for="musculacao">Musculação</label>
+                        <input type="checkbox" id="cardio" name="atividades" value="cardio"><label
+                            for="cardio">Cardio</label>
+                        <input type="checkbox" id="funcional" name="atividades" value="funcional"><label
+                            for="funcional">Treino Funcional</label>
+                        <input type="checkbox" id="pilates" name="atividades" value="pilates"><label
+                            for="pilates">Pilates</label>
+                        <input type="checkbox" id="yoga" name="atividades" value="yoga"><label for="yoga">Yoga</label>
+                        <input type="checkbox" id="spinning" name="atividades" value="spinning"><label
+                            for="spinning">Spinning</label>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="form-group">
+                    <label>Como você avalia a qualidade dos nossos equipamentos?</label>
+                    <div class="rating">
+                        <input type="radio" name="rating-equipamentos" id="equip-star5" value="5" required><label
+                            for="equip-star5">☆</label>
+                        <input type="radio" name="rating-equipamentos" id="equip-star4" value="4"><label
+                            for="equip-star4">☆</label>
+                        <input type="radio" name="rating-equipamentos" id="equip-star3" value="3"><label
+                            for="equip-star3">☆</label>
+                        <input type="radio" name="rating-equipamentos" id="equip-star2" value="2"><label
+                            for="equip-star2">☆</label>
+                        <input type="radio" name="rating-equipamentos" id="equip-star1" value="1"><label
+                            for="equip-star1">☆</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Como você avalia a limpeza da academia?</label>
+                    <div class="rating">
+                        <input type="radio" name="rating-limpeza" id="limpeza-star5" value="5" required><label
+                            for="limpeza-star5">☆</label>
+                        <input type="radio" name="rating-limpeza" id="limpeza-star4" value="4"><label
+                            for="limpeza-star4">☆</label>
+                        <input type="radio" name="rating-limpeza" id="limpeza-star3" value="3"><label
+                            for="limpeza-star3">☆</label>
+                        <input type="radio" name="rating-limpeza" id="limpeza-star2" value="2"><label
+                            for="limpeza-star2">☆</label>
+                        <input type="radio" name="rating-limpeza" id="limpeza-star1" value="1"><label
+                            for="limpeza-star1">☆</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Como você avalia o atendimento dos nossos colaboradores?</label>
+                    <div class="rating">
+                        <input type="radio" name="rating-atendimento" id="atendimento-star5" value="5" required><label
+                            for="atendimento-star5">☆</label>
+                        <input type="radio" name="rating-atendimento" id="atendimento-star4" value="4"><label
+                            for="atendimento-star4">☆</label>
+                        <input type="radio" name="rating-atendimento" id="atendimento-star3" value="3"><label
+                            for="atendimento-star3">☆</label>
+                        <input type="radio" name="rating-atendimento" id="atendimento-star2" value="2"><label
+                            for="atendimento-star2">☆</label>
+                        <input type="radio" name="rating-atendimento" id="atendimento-star1" value="1"><label
+                            for="atendimento-star1">☆</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Como você avalia os horários de funcionamento?</label>
+                    <div class="rating">
+                        <input type="radio" name="rating-horarios" id="horarios-star5" value="5" required><label
+                            for="horarios-star5">☆</label>
+                        <input type="radio" name="rating-horarios" id="horarios-star4" value="4"><label
+                            for="horarios-star4">☆</label>
+                        <input type="radio" name="rating-horarios" id="horarios-star3" value="3"><label
+                            for="horarios-star3">☆</label>
+                        <input type="radio" name="rating-horarios" id="horarios-star2" value="2"><label
+                            for="horarios-star2">☆</label>
+                        <input type="radio" name="rating-horarios" id="horarios-star1" value="1"><label
+                            for="horarios-star1">☆</label>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="form-group">
+                    <label>Como você ficou conhecendo a Academia Eloin?</label>
+                    <div class="radio-group">
+                        <input type="radio" id="conheceu-internet" name="como-conheceu" value="internet" required><label
+                            for="conheceu-internet">Internet/Redes Sociais</label>
+                        <input type="radio" id="conheceu-indicacao" name="como-conheceu" value="indicacao"><label
+                            for="conheceu-indicacao">Indicação</label>
+                        <input type="radio" id="conheceu-proximidade" name="como-conheceu" value="proximidade"><label
+                            for="conheceu-proximidade">Proximidade</label>
+                        <input type="radio" id="conheceu-outros" name="como-conheceu" value="outros"><label
+                            for="conheceu-outros">Outros</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Em uma escala de 0 a 10, qual a probabilidade de você nos recomendar a um amigo?</label>
+                    <div class="nps-rating">
+                        <span>Pouco Provável</span>
+                        <div class="nps-numbers">
+                            <input type="radio" name="nps" id="nps0" value="0" required><label for="nps0">0</label>
+                            <input type="radio" name="nps" id="nps1" value="1"><label for="nps1">1</label>
+                            <input type="radio" name="nps" id="nps2" value="2"><label for="nps2">2</label>
+                            <input type="radio" name="nps" id="nps3" value="3"><label for="nps3">3</label>
+                            <input type="radio" name="nps" id="nps4" value="4"><label for="nps4">4</label>
+                            <input type="radio" name="nps" id="nps5" value="5"><label for="nps5">5</label>
+                            <input type="radio" name="nps" id="nps6" value="6"><label for="nps6">6</label>
+                            <input type="radio" name="nps" id="nps7" value="7"><label for="nps7">7</label>
+                            <input type="radio" name="nps" id="nps8" value="8"><label for="nps8">8</label>
+                            <input type="radio" name="nps" id="nps9" value="9"><label for="nps9">9</label>
+                            <input type="radio" name="nps" id="nps10" value="10"><label for="nps10">10</label>
+                        </div>
+                        <span>Muito Provável</span>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="form-group">
+                    <label>Como você avalia sua experiência geral?</label>
+                    <div class="rating">
+                        <input type="radio" name="rating" id="star5" value="5" required><label for="star5">☆</label>
+                        <input type="radio" name="rating" id="star4" value="4"><label for="star4">☆</label>
+                        <input type="radio" name="rating" id="star3" value="3"><label for="star3">☆</label>
+                        <input type="radio" name="rating" id="star2" value="2"><label for="star2">☆</label>
+                        <input type="radio" name="rating" id="star1" value="1"><label for="star1">☆</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="melhorias">O que podemos melhorar?</label>
+                    <textarea id="melhorias" name="melhorias" rows="3"
+                        placeholder="Suas sugestões são muito importantes para a Academia Eloin Fitness..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="comments">Deixe seus comentários adicionais:</label>
+                    <textarea id="comments" name="comments" rows="4"
+                        placeholder="Conte-nos mais sobre sua experiência na Academia Eloin Fitness..."></textarea>
+                </div>
+
+                <button type="submit">📤 Enviar Feedback para Eloin Fitness</button>
+            </div>
+        </form>
+        <div id="form-message" class="hidden">
+            <p>✅ Obrigado pelo seu feedback na Academia Eloin Fitness!</p>
+            <p style="font-size: 0.9em; opacity: 0.8; margin-top: 10px;">💪 Sua opinião nos ajuda a oferecer o melhor em
+                musculação, cardio e crossfit!</p>
+            <p style="font-size: 0.9em; opacity: 0.8; margin-top: 10px;">🔄 Redirecionando para a página de login...</p>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>

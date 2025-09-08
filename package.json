@@ -1,0 +1,36 @@
+{
+  "name": "eloin-fitness-academia",
+  "version": "1.0.0",
+  "description": "Sistema completo de feedback e gestão para Academia Eloin Fitness - Formulário público e painel administrativo",
+  "main": "src/server.js",
+  "author": "Academia Eloin Fitness",
+  "license": "ISC",
+  "keywords": [
+    "academia",
+    "fitness",
+    "eloin",
+    "feedback",
+    "musculação",
+    "cardio",
+    "crossfit",
+    "painel-administrativo",
+    "mongodb",
+    "express"
+  ],
+  "homepage": "https://academiaeloin.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/joehadest/eloin.git"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node src/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "express-session": "^1.18.2",
+    "mongodb": "^6.19.0"
+  }
+}

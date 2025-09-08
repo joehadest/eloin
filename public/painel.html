@@ -1668,10 +1668,18 @@
     <script>
         let allFeedbacks = [];
 
+        // Função helper para incluir token de autenticação
+        function getAuthHeaders() {
+            const token = localStorage.getItem('token');
+            return token ? { 'x-auth-token': token } : {};
+        }
+
         async function checkAuthAndLoadFeedbacks() {
             try {
                 // Verificar se está autenticado
-                const authResponse = await fetch('/api/auth/status');
+                const authResponse = await fetch('/api/auth/status', {
+                    headers: getAuthHeaders()
+                });
 
                 if (!authResponse.ok) {
                     console.error('Erro ao verificar autenticação:', authResponse.status);
@@ -1685,6 +1693,9 @@
 
                 if (!authData.authenticated) {
                     console.log('Usuário não autenticado, redirecionando...');
+                    // Limpar token inválido
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('authenticated');
                     // Aguardar um pouco antes de redirecionar para evitar loop
                     setTimeout(() => {
                         window.location.href = '/login';
@@ -1692,7 +1703,7 @@
                     return;
                 }
 
-                console.log('Usuário autenticado, carregando feedbacks...');
+                console.log('Usuário autenticado via:', authData.method);
                 // Se autenticado, carregar feedbacks
                 await loadFeedbacks();
             } catch (error) {
@@ -1700,12 +1711,18 @@
                 // Tentar carregar feedbacks mesmo com erro de verificação
                 await loadFeedbacks();
             }
-        } async function loadFeedbacks() {
+        }
+
+        async function loadFeedbacks() {
             try {
-                const response = await fetch('/api/feedbacks');
+                const response = await fetch('/api/feedbacks', {
+                    headers: getAuthHeaders()
+                });
                 if (!response.ok) {
                     if (response.status === 401) {
-                        // Não autenticado, redirecionar para login
+                        // Não autenticado, limpar dados e redirecionar para login
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('authenticated');
                         window.location.href = '/login';
                         return;
                     }
@@ -2237,6 +2254,7 @@ Data: ${date}
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        ...getAuthHeaders()
                     },
                 });
 

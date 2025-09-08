@@ -32,7 +32,29 @@ app.use(session({
     }
 }));
 
-// Middleware de autenticação
+// Store para tokens de sessão simples (em memória para esta demonstração)
+let activeTokens = new Set();
+
+// Função para gerar token simples
+function generateSimpleToken() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+
+// Middleware de autenticação alternativo baseado em token
+function requireAuthToken(req, res, next) {
+    const token = req.headers['x-auth-token'];
+    
+    if (token && activeTokens.has(token)) {
+        next();
+    } else if (req.session && req.session.authenticated) {
+        // Fallback para sessão tradicional (localhost)
+        next();
+    } else {
+        res.status(401).json({ error: 'Authentication required' });
+    }
+}
+
+// Middleware de autenticação original (mantido para compatibilidade)
 function requireAuth(req, res, next) {
     if (req.session.authenticated) {
         next();
@@ -59,18 +81,24 @@ async function connectToDatabase() {
 
 // Rota para verificar status de autenticação
 app.get('/api/auth/status', (req, res) => {
+    const token = req.headers['x-auth-token'];
+    const sessionAuth = !!req.session.authenticated;
+    const tokenAuth = token && activeTokens.has(token);
+    
     console.log('Verificando status de autenticação:', {
         sessionID: req.sessionID,
-        authenticated: !!req.session.authenticated,
-        session: req.session
+        sessionAuth,
+        tokenAuth,
+        token: token ? 'presente' : 'ausente',
+        activeTokensCount: activeTokens.size
     });
-    res.json({
-        authenticated: !!req.session.authenticated,
-        sessionID: req.sessionID
+    
+    res.json({ 
+        authenticated: sessionAuth || tokenAuth,
+        sessionID: req.sessionID,
+        method: tokenAuth ? 'token' : sessionAuth ? 'session' : 'none'
     });
-});
-
-// Rota para enviar feedback
+});// Rota para enviar feedback
 app.post('/api/feedback', async (req, res) => {
     try {
         const database = await connectToDatabase();
@@ -102,8 +130,23 @@ app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
 
     if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+        // Autenticação tradicional para localhost
         req.session.authenticated = true;
-        res.json({ success: true, message: 'Login realizado com sucesso!' });
+        
+        // Gerar token para Vercel
+        const token = generateSimpleToken();
+        activeTokens.add(token);
+        
+        // Limpar tokens antigos após 24 horas
+        setTimeout(() => {
+            activeTokens.delete(token);
+        }, 24 * 60 * 60 * 1000);
+        
+        res.json({ 
+            success: true, 
+            message: 'Login realizado com sucesso!',
+            token: token 
+        });
     } else {
         res.status(401).json({ error: 'Credenciais inválidas' });
     }
@@ -111,12 +154,18 @@ app.post('/api/login', (req, res) => {
 
 // Rota para logout
 app.post('/api/logout', (req, res) => {
+    const token = req.headers['x-auth-token'];
+    
+    if (token) {
+        activeTokens.delete(token);
+    }
+    
     req.session.destroy();
     res.json({ success: true, message: 'Logout realizado com sucesso!' });
 });
 
 // Rota para obter todos os feedbacks (protegida)
-app.get('/api/feedbacks', requireAuth, async (req, res) => {
+app.get('/api/feedbacks', requireAuthToken, async (req, res) => {
     try {
         const database = await connectToDatabase();
         const feedbacks = database.collection('feedbacks');
@@ -129,7 +178,7 @@ app.get('/api/feedbacks', requireAuth, async (req, res) => {
 });
 
 // Rota para deletar feedback (protegida)
-app.delete('/api/feedback/:id', requireAuth, async (req, res) => {
+app.delete('/api/feedback/:id', requireAuthToken, async (req, res) => {
     try {
         const { ObjectId } = require('mongodb');
         const database = await connectToDatabase();

@@ -96,6 +96,12 @@
             border: 2px solid rgba(255, 215, 0, 0.3);
             transition: all 0.3s ease;
             font-weight: 600;
+            box-sizing: border-box;
+            line-height: 1.2;
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .back-link:hover {
@@ -243,6 +249,12 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             font-size: 0.9em;
+            box-sizing: border-box;
+            line-height: 1.2;
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .clear-filters-btn:hover {
@@ -393,6 +405,951 @@
 
         .action-btn:hover {
             transform: translateY(-1px);
+        }
+
+        /* ===========================================
+           RESPONSIVIDADE DOS BOTÕES DO PAINEL
+           =========================================== */
+
+        /* Botões responsivos para tablets */
+        @media screen and (max-width: 1024px) {
+            .clear-filters-btn {
+                padding: 14px 28px;
+                font-size: 1rem;
+            }
+
+            .expand-all-btn {
+                padding: 14px 24px;
+                font-size: 1rem;
+            }
+
+            .action-btn {
+                padding: 10px 18px;
+                font-size: 0.9rem;
+            }
+
+            .accordion-header {
+                padding: 18px 22px;
+                font-size: 1rem;
+            }
+        }
+
+        /* Botões responsivos para celulares */
+        @media screen and (max-width: 768px) {
+            .clear-filters-btn {
+                width: 100%;
+                padding: 16px 24px;
+                font-size: 1.1rem;
+                margin-bottom: 15px;
+                min-height: 50px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            .expand-all-btn {
+                width: 100%;
+                padding: 16px 24px;
+                font-size: 1.1rem;
+                min-height: 50px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            .accordion-header {
+                padding: 16px 20px;
+                font-size: 1rem;
+                min-height: 60px;
+                display: flex;
+                align-items: center;
+            }
+
+            .accordion-header::after {
+                font-size: 1.4rem;
+                margin-left: 12px;
+            }
+
+            .accordion-actions {
+                flex-direction: column;
+                gap: 12px;
+                margin-top: 20px;
+                padding-top: 20px;
+            }
+
+            .action-btn {
+                width: 100%;
+                padding: 14px 20px;
+                font-size: 1rem;
+                min-height: 48px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                border-radius: 8px;
+            }
+
+            .action-btn.primary {
+                background: linear-gradient(145deg, var(--primary-color), var(--secondary-color));
+                box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+            }
+
+            .action-btn.secondary {
+                background: linear-gradient(145deg, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0.05));
+                border: 2px solid var(--primary-color);
+                box-shadow: 0 4px 12px rgba(255, 215, 0, 0.1);
+            }
+        }
+
+        /* Botões responsivos para celulares pequenos */
+        @media screen and (max-width: 480px) {
+            .clear-filters-btn {
+                padding: 14px 20px;
+                font-size: 1rem;
+                min-height: 48px;
+            }
+
+            .expand-all-btn {
+                padding: 14px 20px;
+                font-size: 1rem;
+                min-height: 48px;
+            }
+
+            .accordion-header {
+                padding: 14px 18px;
+                font-size: 0.95rem;
+                min-height: 56px;
+            }
+
+            .accordion-header::after {
+                font-size: 1.2rem;
+                margin-left: 10px;
+            }
+
+            .action-btn {
+                padding: 12px 18px;
+                font-size: 0.95rem;
+                min-height: 44px;
+                border-radius: 6px;
+            }
+
+            .accordion-actions {
+                gap: 10px;
+                margin-top: 18px;
+                padding-top: 18px;
+            }
+        }
+
+        /* Acessibilidade para dispositivos touch */
+        @media (hover: none) and (pointer: coarse) {
+
+            .clear-filters-btn,
+            .expand-all-btn,
+            .accordion-header,
+            .action-btn {
+                min-height: 44px;
+                min-width: 44px;
+            }
+
+            .clear-filters-btn:hover,
+            .expand-all-btn:hover,
+            .accordion-header:hover,
+            .action-btn:hover {
+                transform: none;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            }
+
+            .clear-filters-btn:active,
+            .expand-all-btn:active,
+            .accordion-header:active,
+            .action-btn:active {
+                transform: scale(0.98);
+                transition: transform 0.1s ease;
+            }
+        }
+
+        /* Melhorar foco para acessibilidade */
+        .clear-filters-btn:focus,
+        .expand-all-btn:focus,
+        .accordion-header:focus,
+        .action-btn:focus {
+            outline: 3px solid var(--primary-color);
+            outline-offset: 2px;
+            box-shadow: 0 0 0 6px rgba(255, 215, 0, 0.2);
+        }
+
+        /* Animações suaves para melhor UX */
+        .clear-filters-btn,
+        .expand-all-btn,
+        .action-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .accordion-header {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ===========================================
+           MELHORIAS DE RESPONSIVIDADE ADICIONAIS
+           =========================================== */
+
+        /* Responsividade para tablets grandes */
+        @media screen and (max-width: 1200px) {
+            .painel-container {
+                padding: 20px 15px;
+            }
+
+            .stats {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 20px;
+            }
+
+            .stat-card {
+                padding: 25px;
+            }
+
+            .stat-number {
+                font-size: 2.5em;
+            }
+
+            .stat-icon {
+                font-size: 2em;
+            }
+        }
+
+        /* Responsividade para tablets médios */
+        @media screen and (max-width: 1024px) {
+            header h1 {
+                font-size: 2.5em;
+            }
+
+            header p {
+                font-size: 1.1em;
+            }
+
+            .painel-container {
+                padding: 20px 10px;
+            }
+
+            .stats {
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                gap: 18px;
+                margin-bottom: 30px;
+            }
+
+            .stat-card {
+                padding: 20px;
+            }
+
+            .stat-number {
+                font-size: 2.2em;
+            }
+
+            .stat-label {
+                font-size: 1em;
+            }
+
+            .filter-section {
+                padding: 25px;
+                margin-bottom: 25px;
+            }
+
+            .filter-group {
+                gap: 15px;
+            }
+
+            .filter-group select {
+                min-width: 130px;
+                padding: 10px 14px;
+            }
+
+            .accordion-item {
+                margin-bottom: 12px;
+            }
+
+            .accordion-header {
+                padding: 16px 20px;
+                font-size: 1rem;
+            }
+
+            .accordion-body {
+                padding: 20px;
+            }
+
+            .accordion-meta {
+                gap: 15px;
+                margin-bottom: 12px;
+            }
+        }
+
+        /* Responsividade para tablets pequenos e celulares grandes */
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            .painel-container {
+                padding: 15px 5px;
+            }
+
+            header {
+                margin-bottom: 30px;
+            }
+
+            header h1 {
+                font-size: 2em;
+                margin-bottom: 8px;
+            }
+
+            header p {
+                font-size: 1em;
+            }
+
+            .back-link {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+
+            .stats {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+                margin-bottom: 25px;
+            }
+
+            .stat-card {
+                padding: 18px;
+            }
+
+            .stat-icon {
+                font-size: 1.8em;
+                margin-bottom: 12px;
+            }
+
+            .stat-number {
+                font-size: 1.8em;
+                margin-bottom: 3px;
+            }
+
+            .stat-label {
+                font-size: 0.95em;
+            }
+
+            .filter-section {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .filter-section h3 {
+                font-size: 1.3em;
+                margin-bottom: 16px;
+            }
+
+            .filter-group {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+
+            .filter-group label {
+                font-size: 0.95em;
+                margin-bottom: 4px;
+            }
+
+            .filter-group select {
+                min-width: auto;
+                width: 100%;
+                padding: 12px 16px;
+            }
+
+            .clear-filters-btn {
+                width: 100%;
+                margin-top: 15px;
+                padding: 14px 20px;
+                font-size: 1rem;
+            }
+
+            .expand-all-btn {
+                width: 100%;
+                padding: 14px 20px;
+                font-size: 1rem;
+                margin-bottom: 15px;
+            }
+
+            .accordion-item {
+                margin-bottom: 10px;
+            }
+
+            .accordion-header {
+                padding: 14px 16px;
+                font-size: 0.95rem;
+                min-height: 50px;
+            }
+
+            .accordion-header::after {
+                font-size: 1.1rem;
+                margin-left: 10px;
+            }
+
+            .accordion-body {
+                padding: 16px;
+            }
+
+            .accordion-title {
+                font-size: 1.1em;
+                margin-bottom: 6px;
+            }
+
+            .accordion-meta {
+                flex-direction: column;
+                gap: 8px;
+                margin-bottom: 12px;
+            }
+
+            .meta-item {
+                font-size: 0.85em;
+            }
+
+            .accordion-actions {
+                flex-direction: column;
+                gap: 8px;
+                margin-top: 12px;
+                padding-top: 12px;
+            }
+
+            .action-btn {
+                width: 100%;
+                padding: 12px 16px;
+                font-size: 0.95rem;
+                min-height: 44px;
+            }
+        }
+
+        /* Responsividade para celulares médios */
+        @media screen and (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .painel-container {
+                padding: 10px 5px;
+            }
+
+            header h1 {
+                font-size: 1.8em;
+                letter-spacing: 0.5px;
+            }
+
+            header p {
+                font-size: 0.9em;
+            }
+
+            .back-link {
+                padding: 8px 16px;
+                font-size: 0.85em;
+                margin-top: 15px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                margin-bottom: 20px;
+            }
+
+            .stat-card {
+                padding: 16px;
+            }
+
+            .stat-icon {
+                font-size: 1.5em;
+                margin-bottom: 10px;
+            }
+
+            .stat-number {
+                font-size: 1.5em;
+                margin-bottom: 2px;
+            }
+
+            .stat-label {
+                font-size: 0.9em;
+            }
+
+            .filter-section {
+                padding: 16px;
+                margin-bottom: 15px;
+            }
+
+            .filter-section h3 {
+                font-size: 1.2em;
+                margin-bottom: 14px;
+            }
+
+            .filter-group select {
+                padding: 10px 14px;
+                font-size: 0.95rem;
+            }
+
+            .clear-filters-btn {
+                padding: 12px 18px;
+                font-size: 0.95rem;
+                min-height: 44px;
+            }
+
+            .expand-all-btn {
+                padding: 12px 18px;
+                font-size: 0.95rem;
+                min-height: 44px;
+            }
+
+            .accordion-item {
+                margin-bottom: 8px;
+            }
+
+            .accordion-header {
+                padding: 12px 14px;
+                font-size: 0.9rem;
+                min-height: 44px;
+            }
+
+            .accordion-header::after {
+                font-size: 1rem;
+                margin-left: 8px;
+            }
+
+            .accordion-body {
+                padding: 14px;
+            }
+
+            .accordion-title {
+                font-size: 1em;
+                margin-bottom: 4px;
+            }
+
+            .accordion-meta {
+                gap: 6px;
+                margin-bottom: 10px;
+            }
+
+            .meta-item {
+                font-size: 0.8em;
+            }
+
+            .accordion-actions {
+                gap: 6px;
+                margin-top: 10px;
+                padding-top: 10px;
+            }
+
+            .action-btn {
+                padding: 10px 14px;
+                font-size: 0.9rem;
+                min-height: 40px;
+            }
+        }
+
+        /* Responsividade para celulares pequenos */
+        @media screen and (max-width: 360px) {
+            header h1 {
+                font-size: 1.6em;
+            }
+
+            header p {
+                font-size: 0.85em;
+            }
+
+            .back-link {
+                padding: 6px 14px;
+                font-size: 0.8em;
+            }
+
+            .stat-card {
+                padding: 14px;
+            }
+
+            .stat-icon {
+                font-size: 1.3em;
+                margin-bottom: 8px;
+            }
+
+            .stat-number {
+                font-size: 1.3em;
+            }
+
+            .stat-label {
+                font-size: 0.85em;
+            }
+
+            .filter-section {
+                padding: 14px;
+            }
+
+            .filter-section h3 {
+                font-size: 1.1em;
+                margin-bottom: 12px;
+            }
+
+            .filter-group select {
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+
+            .clear-filters-btn {
+                padding: 10px 16px;
+                font-size: 0.9rem;
+                min-height: 40px;
+            }
+
+            .expand-all-btn {
+                padding: 10px 16px;
+                font-size: 0.9rem;
+                min-height: 40px;
+            }
+
+            .accordion-header {
+                padding: 10px 12px;
+                font-size: 0.85rem;
+                min-height: 40px;
+            }
+
+            .accordion-header::after {
+                font-size: 0.9rem;
+                margin-left: 6px;
+            }
+
+            .accordion-body {
+                padding: 12px;
+            }
+
+            .accordion-title {
+                font-size: 0.95em;
+            }
+
+            .meta-item {
+                font-size: 0.75em;
+            }
+
+            .action-btn {
+                padding: 8px 12px;
+                font-size: 0.85rem;
+                min-height: 36px;
+            }
+        }
+
+        /* Estados de loading para botões */
+        .clear-filters-btn.loading,
+        .expand-all-btn.loading,
+        .action-btn.loading {
+            opacity: 0.7;
+            pointer-events: none;
+            position: relative;
+        }
+
+        .clear-filters-btn.loading::after,
+        .expand-all-btn.loading::after,
+        .action-btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            margin: auto;
+            border: 2px solid transparent;
+            border-top-color: #121212;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ===========================================
+           MELHORIAS FINAIS DE RESPONSIVIDADE
+           =========================================== */
+
+        /* Melhorar experiência em dispositivos móveis */
+        @media screen and (max-width: 768px) {
+            body {
+                font-size: 16px;
+                /* Previne zoom no iOS */
+            }
+
+            .painel-container {
+                max-width: 100%;
+            }
+
+            /* Melhorar toque nos botões */
+            .clear-filters-btn,
+            .expand-all-btn,
+            .accordion-header,
+            .action-btn,
+            .back-link {
+                touch-action: manipulation;
+                -webkit-tap-highlight-color: rgba(255, 215, 0, 0.2);
+            }
+
+            /* Espaçamento melhorado para toque */
+            .accordion-item {
+                margin-bottom: 12px;
+            }
+
+            .accordion-body {
+                padding: 18px;
+            }
+
+            /* Melhorar legibilidade */
+            .accordion-title {
+                line-height: 1.4;
+            }
+
+            .meta-item {
+                line-height: 1.3;
+            }
+        }
+
+        /* Suporte para orientação paisagem em dispositivos móveis */
+        @media screen and (max-width: 768px) and (orientation: landscape) {
+            body {
+                padding: 10px;
+            }
+
+            .painel-container {
+                padding: 10px 5px;
+            }
+
+            header h1 {
+                font-size: 1.5em;
+            }
+
+            .stats {
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                gap: 10px;
+            }
+
+            .stat-card {
+                padding: 12px;
+            }
+
+            .stat-number {
+                font-size: 1.2em;
+            }
+
+            .filter-section {
+                padding: 12px;
+            }
+
+            .accordion-header {
+                padding: 10px 12px;
+                min-height: 40px;
+            }
+
+            .accordion-body {
+                padding: 12px;
+            }
+        }
+
+        /* Suporte para telas de alta resolução */
+        @media screen and (min-width: 1400px) {
+            .painel-container {
+                max-width: 1600px;
+            }
+
+            .stats {
+                grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            }
+
+            .stat-card {
+                padding: 35px;
+            }
+
+            .stat-number {
+                font-size: 3.5em;
+            }
+
+            .stat-icon {
+                font-size: 3em;
+            }
+        }
+
+        /* Suporte para impressão */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+                font-size: 12px;
+            }
+
+            .painel-container {
+                max-width: none;
+                padding: 0;
+            }
+
+            .stats {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .stat-card {
+                background: white !important;
+                border: 1px solid #ccc !important;
+                box-shadow: none !important;
+                break-inside: avoid;
+            }
+
+            .accordion-item {
+                break-inside: avoid;
+                margin-bottom: 10px;
+            }
+
+            .accordion-header {
+                background: #f0f0f0 !important;
+                color: black !important;
+                border: 1px solid #ccc;
+            }
+
+            .accordion-body {
+                background: white !important;
+                border: 1px solid #ccc;
+                border-top: none;
+            }
+
+            .action-btn,
+            .clear-filters-btn,
+            .expand-all-btn,
+            .back-link {
+                display: none !important;
+            }
+
+            .accordion-content {
+                max-height: none !important;
+            }
+        }
+
+        /* ===========================================
+           ANIMAÇÕES DE ENTRADA PARA MELHOR UX
+           =========================================== */
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Aplicar animações de entrada */
+        header {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .stats {
+            animation: fadeInUp 0.8s ease-out 0.1s both;
+        }
+
+        .filter-section {
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .accordion-item {
+            animation: fadeInUp 0.8s ease-out 0.3s both;
+        }
+
+        .accordion-item:nth-child(n+2) {
+            animation-delay: calc(0.3s + (var(--item-index, 0) * 0.1s));
+        }
+
+        /* ===========================================
+           FIM DOS ESTILOS RESPONSIVOS
+           =========================================== */
+
+        /* Garantir altura idêntica para os botões do header */
+        header .back-link,
+        header #logout-btn {
+            height: 44px !important;
+            min-height: 44px !important;
+            max-height: 44px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            box-sizing: border-box !important;
+            line-height: 1.2 !important;
+        }
+
+        /* Ajuste fino para compensar diferenças de fonte */
+        header #logout-btn {
+            padding-top: 11px !important;
+            padding-bottom: 11px !important;
+        }
+
+        header .back-link {
+            padding-top: 11px !important;
+            padding-bottom: 11px !important;
+        }
+
+        /* Garantir alinhamento perfeito no desktop */
+        @media screen and (min-width: 769px) {
+            header div[style*="margin-top: 20px"] {
+                flex-direction: row !important;
+                flex-wrap: nowrap !important;
+            }
+
+            .back-link {
+                order: 1;
+            }
+
+            #logout-btn {
+                order: 2;
+            }
+        }
+
+        /* Responsividade para o header com botões */
+        @media screen and (max-width: 768px) {
+            header div[style*="margin-top: 20px"] {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .back-link {
+                order: 2;
+            }
+
+            #logout-btn {
+                order: 1;
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            header div[style*="margin-top: 20px"] {
+                gap: 12px;
+            }
+
+            #logout-btn {
+                max-width: 180px;
+                font-size: 0.9rem;
+            }
         }
 
         .feedback-header {
@@ -656,10 +1613,11 @@
         <header style="text-align: center; margin-bottom: 30px;">
             <h1>🏋️ Academia Eloin Fitness - Painel Administrativo</h1>
             <p>Gerencie todos os feedbacks dos seus alunos e clientes</p>
-            <div style="margin-top: 20px;">
+            <div
+                style="margin-top: 20px; display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap;">
                 <a href="/" class="back-link">← Voltar ao Formulário</a>
                 <button id="logout-btn" class="clear-filters-btn"
-                    style="margin-left: 20px; background: linear-gradient(45deg, #ff6b6b, #ee5a52);">🚪 Sair do
+                    style="background: linear-gradient(45deg, #ff6b6b, #ee5a52); margin-left: 0;">🚪 Sair do
                     Sistema</button>
             </div>
         </header>

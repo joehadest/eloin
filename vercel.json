@@ -1,6 +1,5 @@
 {
     "version": 2,
-    "name": "eloin-fitness-academia",
     "functions": {
         "api/index.js": {
             "maxDuration": 30
@@ -19,8 +18,5 @@
             "source": "/painel",
             "destination": "/painel.html"
         }
-    ],
-    "env": {
-        "NODE_ENV": "production"
-    }
+    ]
 }

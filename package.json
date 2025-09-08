@@ -23,7 +23,6 @@
     "url": "https://github.com/joehadest/eloin.git"
   },
   "scripts": {
-    "build": "echo 'Build completed - static files ready'",
     "start": "node src/server.js",
     "dev": "node src/server.js"
   },

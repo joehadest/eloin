@@ -297,13 +297,25 @@ body {
 .admin-link {
     display: block;
     text-align: center;
-    margin-top: 30px;
-    color: var(--text-secondary);
+    margin: 30px auto;
+    padding: 15px 30px;
+    background: linear-gradient(145deg, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0.2));
+    border: 2px solid var(--primary-color);
+    border-radius: 12px;
+    color: var(--primary-color);
     text-decoration: none;
-    transition: color 0.3s ease;
+    font-weight: 600;
+    font-size: 1.1em;
+    transition: all 0.3s ease;
+    max-width: 300px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .admin-link:hover {
+    background: linear-gradient(145deg, rgba(255, 215, 0, 0.2), rgba(255, 215, 0, 0.3));
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
     color: var(--primary-color);
 }
 

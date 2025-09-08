@@ -7,10 +7,10 @@ const session = require('express-session');
 const app = express();
 
 // Variáveis de ambiente para Vercel
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://webpulse:silva225566@eloinformulario.vcympy9.mongodb.net/?retryWrites=true&w=majority&appName=eloinformulario';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://webpulse:silva225566@elohimformulario.vcympy9.mongodb.net/?retryWrites=true&w=majority&appName=elohimformulario';
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'eloin2024';
-const SESSION_SECRET = process.env.SESSION_SECRET || 'eloin-secret-key-2024';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'elohim2024';
+const SESSION_SECRET = process.env.SESSION_SECRET || 'elohim-secret-key-2024';
 
 // Middleware
 app.use(cors({
@@ -43,7 +43,7 @@ function generateSimpleToken() {
 // Middleware de autenticação alternativo baseado em token
 function requireAuthToken(req, res, next) {
     const token = req.headers['x-auth-token'];
-    
+
     if (token && activeTokens.has(token)) {
         next();
     } else if (req.session && req.session.authenticated) {
@@ -71,8 +71,8 @@ async function connectToDatabase() {
     if (!client) {
         client = new MongoClient(MONGODB_URI);
         await client.connect();
-        db = client.db('eloin_fitness');
-        console.log('🚀 Conectado ao MongoDB Atlas - Academia Eloin Fitness');
+        db = client.db('elohim_fitness');
+        console.log('🚀 Conectado ao MongoDB Atlas - Academia Elohim Fitness');
     }
     return db;
 }
@@ -84,7 +84,7 @@ app.get('/api/auth/status', (req, res) => {
     const token = req.headers['x-auth-token'];
     const sessionAuth = !!req.session.authenticated;
     const tokenAuth = token && activeTokens.has(token);
-    
+
     console.log('Verificando status de autenticação:', {
         sessionID: req.sessionID,
         sessionAuth,
@@ -92,8 +92,8 @@ app.get('/api/auth/status', (req, res) => {
         token: token ? 'presente' : 'ausente',
         activeTokensCount: activeTokens.size
     });
-    
-    res.json({ 
+
+    res.json({
         authenticated: sessionAuth || tokenAuth,
         sessionID: req.sessionID,
         method: tokenAuth ? 'token' : sessionAuth ? 'session' : 'none'
@@ -111,16 +111,16 @@ app.post('/api/feedback', async (req, res) => {
         };
 
         const result = await feedbacks.insertOne(feedbackData);
-        console.log('✅ Novo feedback salvo - Academia Eloin Fitness:', result.insertedId);
+        console.log('✅ Novo feedback salvo - Academia Elohim Fitness:', result.insertedId);
 
         res.json({
             success: true,
-            message: 'Feedback enviado com sucesso para Academia Eloin Fitness!'
+            message: 'Feedback enviado com sucesso para Academia Elohim Fitness!'
         });
     } catch (error) {
-        console.error('❌ Erro ao salvar feedback da Academia Eloin Fitness:', error);
+        console.error('❌ Erro ao salvar feedback da Academia Elohim Fitness:', error);
         res.status(500).json({
-            error: 'Erro interno do servidor da Academia Eloin Fitness'
+            error: 'Erro interno do servidor da Academia Elohim Fitness'
         });
     }
 });
@@ -132,20 +132,20 @@ app.post('/api/login', (req, res) => {
     if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
         // Autenticação tradicional para localhost
         req.session.authenticated = true;
-        
+
         // Gerar token para Vercel
         const token = generateSimpleToken();
         activeTokens.add(token);
-        
+
         // Limpar tokens antigos após 24 horas
         setTimeout(() => {
             activeTokens.delete(token);
         }, 24 * 60 * 60 * 1000);
-        
-        res.json({ 
-            success: true, 
+
+        res.json({
+            success: true,
             message: 'Login realizado com sucesso!',
-            token: token 
+            token: token
         });
     } else {
         res.status(401).json({ error: 'Credenciais inválidas' });
@@ -155,11 +155,11 @@ app.post('/api/login', (req, res) => {
 // Rota para logout
 app.post('/api/logout', (req, res) => {
     const token = req.headers['x-auth-token'];
-    
+
     if (token) {
         activeTokens.delete(token);
     }
-    
+
     req.session.destroy();
     res.json({ success: true, message: 'Logout realizado com sucesso!' });
 });
@@ -226,7 +226,7 @@ module.exports = app;
 if (require.main === module) {
     const port = process.env.PORT || 3000;
     app.listen(port, () => {
-        console.log(`🚀 Servidor Academia Eloin Fitness rodando na porta ${port}`);
+        console.log(`🚀 Servidor Academia Elohim Fitness rodando na porta ${port}`);
         console.log(`📝 Formulário: http://localhost:${port}`);
         console.log(`🔐 Login Admin: http://localhost:${port}/login`);
         console.log(`📊 Painel Admin: http://localhost:${port}/painel`);

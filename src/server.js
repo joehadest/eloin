@@ -10,7 +10,7 @@ const port = process.env.PORT || 3000;
 
 // Credenciais de login (em produção, use variáveis de ambiente)
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'eloin2024';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'elohim2024';
 
 // Middleware
 app.use(cors());
@@ -19,7 +19,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 // Configuração de sessão
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'eloin-secret-key-2024',
+    secret: process.env.SESSION_SECRET || 'elohim-secret-key-2024',
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -97,7 +97,7 @@ app.get('/api/auth-status', (req, res) => {
 });
 app.post('/api/feedback', async (req, res) => {
     try {
-        const db = client.db('eloinformulario');
+        const db = client.db('elohimformulario');
         const collection = db.collection('feedbacks');
 
         const feedbackData = {
@@ -117,7 +117,7 @@ app.post('/api/feedback', async (req, res) => {
 app.get('/api/feedbacks', requireAuth, async (req, res) => {
     try {
         console.log('Tentando conectar ao banco de dados...');
-        const db = client.db('eloinformulario');
+        const db = client.db('elohimformulario');
         const collection = db.collection('feedbacks');
 
         console.log('Buscando feedbacks...');

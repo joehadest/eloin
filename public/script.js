@@ -38,7 +38,7 @@ document.getElementById('feedbackForm').addEventListener('submit', function (eve
     if (!isValid) {
         // Mostrar mensagem de erro
         const errorMessage = document.createElement('div');
-        errorMessage.innerHTML = '⚠️ Por favor, preencha todos os campos obrigatórios para ajudar a Academia Eloin Fitness a melhorar.';
+        errorMessage.innerHTML = '⚠️ Por favor, preencha todos os campos obrigatórios para ajudar a Academia Elohim Fitness a melhorar.';
         errorMessage.style.cssText = `
             background: linear-gradient(145deg, rgba(255, 68, 68, 0.1), rgba(255, 68, 68, 0.2));
             border: 2px solid #ff4444;
@@ -117,7 +117,7 @@ document.getElementById('feedbackForm').addEventListener('submit', function (eve
             console.error('Erro:', error);
             // Mostrar mensagem de erro
             const errorMessage = document.createElement('div');
-            errorMessage.innerHTML = '❌ Erro ao enviar feedback para Academia Eloin Fitness. Tente novamente.';
+            errorMessage.innerHTML = '❌ Erro ao enviar feedback para Academia Elohim Fitness. Tente novamente.';
             errorMessage.style.cssText = `
             background: linear-gradient(145deg, rgba(255, 68, 68, 0.1), rgba(255, 68, 68, 0.2));
             border: 2px solid #ff4444;
@@ -150,7 +150,7 @@ document.getElementById('feedbackForm').addEventListener('submit', function (eve
     const submitButton = document.querySelector('button[type="submit"]');
     const originalText = submitButton.innerHTML;
 
-    submitButton.innerHTML = '⏳ Enviando para Academia Eloin Fitness...';
+    submitButton.innerHTML = '⏳ Enviando para Academia Elohim Fitness...';
     submitButton.disabled = true;
     submitButton.style.opacity = '0.6';
 

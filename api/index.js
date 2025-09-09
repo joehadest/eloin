@@ -246,11 +246,22 @@ app.post('/api/feedback', async (req, res) => {
 });
 
 // Rota para login
-app.post('/api/login', (req, res) => {
+app.post('/api/login', async (req, res) => {
     try {
         const { username, password } = req.body;
 
         console.log('Tentativa de login:', { username, hasPassword: !!password });
+        console.log('Environment:', process.env.NODE_ENV);
+        console.log('Credenciais atuais:', {
+            username: currentCredentials.username,
+            hasPassword: !!currentCredentials.password
+        });
+
+        // Tentar carregar credenciais do banco se ainda não foram carregadas
+        if (currentCredentials.username === ADMIN_USERNAME && currentCredentials.password === ADMIN_PASSWORD) {
+            console.log('🔄 Recarregando credenciais do banco...');
+            await loadCredentialsFromDatabase();
+        }
 
         if (username === currentCredentials.username && password === currentCredentials.password) {
             // Autenticação tradicional para localhost
@@ -266,7 +277,7 @@ app.post('/api/login', (req, res) => {
                 activeTokens.delete(token);
             }, 24 * 60 * 60 * 1000);
 
-            console.log('Login bem-sucedido para usuário:', username);
+            console.log('✅ Login bem-sucedido para usuário:', username);
 
             res.json({
                 success: true,
@@ -275,14 +286,17 @@ app.post('/api/login', (req, res) => {
                 username: username
             });
         } else {
-            console.log('Credenciais inválidas para usuário:', username);
+            console.log('❌ Credenciais inválidas para usuário:', username);
+            console.log('Esperado:', { username: currentCredentials.username });
+            console.log('Recebido:', { username, password: password ? '[HIDDEN]' : '[EMPTY]' });
+
             res.status(401).json({
                 success: false,
                 error: 'Credenciais inválidas'
             });
         }
     } catch (error) {
-        console.error('Erro no login:', error);
+        console.error('❌ Erro no login:', error);
         res.status(500).json({
             success: false,
             error: 'Erro interno do servidor'
@@ -300,6 +314,27 @@ app.post('/api/logout', (req, res) => {
 
     req.session.destroy();
     res.json({ success: true, message: 'Logout realizado com sucesso!' });
+});
+
+// Rota de debug para verificar credenciais (remover em produção)
+app.get('/api/debug/credentials', async (req, res) => {
+    try {
+        // Recarregar credenciais do banco
+        await loadCredentialsFromDatabase();
+
+        res.json({
+            environment: process.env.NODE_ENV,
+            hasMongoUri: !!process.env.MONGODB_URI,
+            defaultUsername: ADMIN_USERNAME,
+            currentUsername: currentCredentials.username,
+            hasCurrentPassword: !!currentCredentials.password,
+            usingDefaultCredentials: currentCredentials.username === ADMIN_USERNAME && currentCredentials.password === ADMIN_PASSWORD
+        });
+    } catch (error) {
+        res.status(500).json({
+            error: error.message
+        });
+    }
 });
 
 // Rota para obter todos os feedbacks (protegida)
@@ -410,15 +445,16 @@ module.exports = app;
 
 // Inicializar credenciais do banco de dados para Vercel
 if (require.main !== module) {
-    // Executar apenas no ambiente Vercel
-    setTimeout(async () => {
-        try {
-            await loadCredentialsFromDatabase();
-            console.log('Credenciais carregadas do banco no Vercel');
-        } catch (error) {
-            console.error('Erro ao carregar credenciais no Vercel:', error);
-        }
-    }, 1000);
+    // Executar imediatamente no ambiente Vercel
+    console.log('🔄 Inicializando credenciais para Vercel...');
+    loadCredentialsFromDatabase()
+        .then(() => {
+            console.log('✅ Credenciais carregadas do banco no Vercel');
+        })
+        .catch(error => {
+            console.error('❌ Erro ao carregar credenciais no Vercel:', error);
+            console.log('⚠️ Usando credenciais padrão');
+        });
 }
 
 // Para execução local

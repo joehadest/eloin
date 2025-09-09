@@ -585,57 +585,6 @@
             box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
         }
 
-        /* Scrollable Feedbacks Container */
-        #feedbacks-list {
-            max-height: 75vh;
-            overflow-y: auto;
-            overflow-x: hidden;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(255, 215, 0, 0.3) rgba(220, 220, 220, 0.5);
-            display: grid;
-            gap: 20px;
-            grid-template-columns: 1fr;
-        }
-
-        @media (min-width: 1200px) {
-            #feedbacks-list {
-                max-height: 80vh;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 25px;
-            }
-        }
-
-        @media (min-width: 1600px) {
-            #feedbacks-list {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 30px;
-            }
-        }
-
-        #feedbacks-list::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        #feedbacks-list::-webkit-scrollbar-track {
-            background: rgba(220, 220, 220, 0.5);
-            border-radius: 10px;
-        }
-
-        #feedbacks-list::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, rgba(255, 215, 0, 0.6), rgba(255, 215, 0, 0.3));
-            border-radius: 10px;
-            border: 1px solid rgba(255, 215, 0, 0.1);
-        }
-
-        #feedbacks-list::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(180deg, rgba(255, 215, 0, 0.8), rgba(255, 215, 0, 0.5));
-        }
-
-        /* Smooth scrolling */
-        #feedbacks-list {
-            scroll-behavior: smooth;
-        }
-
         /* Accordion Styles */
         .accordion-item {
             background: var(--card-bg);
@@ -696,13 +645,28 @@
         }
 
         .accordion-item.active .accordion-content {
-            max-height: 1000px;
-            /* Ajuste conforme necessário */
+            max-height: 2000px;
+            /* Aumentado para conteúdo longo em mobile */
+        }
+
+        /* Ajustes específicos para mobile */
+        @media (max-width: 768px) {
+            .accordion-item.active .accordion-content {
+                max-height: 3000px;
+                /* Altura ainda maior para mobile */
+            }
         }
 
         .accordion-body {
             padding: 25px;
             border-top: 1px solid rgba(255, 215, 0, 0.1);
+        }
+
+        /* Ajustes para mobile */
+        @media (max-width: 768px) {
+            .accordion-body {
+                padding: 20px 15px;
+            }
         }
 
         .accordion-title {
@@ -1756,7 +1720,8 @@
                 padding: 30px 40px;
             }
 
-            #feedbacks-list {
+            /* Só aplicar à gaveta antiga se ela existir e modal não estiver ativo */
+            body:not(.modal-active) #feedbacks-list {
                 max-height: 85vh;
             }
         }
@@ -2014,6 +1979,245 @@
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(255, 215, 0, 0.5);
         }
+
+        /* ===== MODAL STYLES ===== */
+        .view-feedbacks-section {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .view-feedbacks-btn {
+            background: linear-gradient(135deg, #ffd700 0%, #e6c200 100%);
+            color: #333333;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 15px;
+            font-size: 1.2em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            text-decoration: none;
+        }
+
+        .view-feedbacks-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(255, 215, 0, 0.4);
+            background: linear-gradient(135deg, #e6c200 0%, #d4af00 100%);
+        }
+
+        .view-feedbacks-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .feedbacks-count {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333333;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 0.9em;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .btn-icon {
+            font-size: 1.5em;
+        }
+
+        .btn-text {
+            font-size: 1.1em;
+        }
+
+        /* Modal Styles */
+        .feedbacks-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10000;
+        }
+
+        .feedbacks-modal.active {
+            display: block;
+        }
+
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 10001;
+            cursor: pointer;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 95%;
+            max-width: 1400px;
+            max-height: 90vh;
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            border-radius: 20px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 215, 0, 0.2);
+            z-index: 10002;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            pointer-events: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 30px;
+            border-bottom: 2px solid rgba(255, 215, 0, 0.1);
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #333333;
+            background: linear-gradient(45deg, #333333, #555555);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 2em;
+            color: #666666;
+            cursor: pointer;
+            padding: 5px 15px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            pointer-events: auto;
+            z-index: 10003;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 68, 68, 0.1);
+            color: #ff4444;
+            transform: scale(1.1);
+        }
+
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            min-height: 0;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .modal-body #feedbacks-list {
+            max-height: none;
+            overflow-y: visible;
+            flex: 1;
+            min-height: 0;
+        }
+
+        /* Garantir que gaveta antiga fique oculta quando modal estiver ativo */
+        .modal-active #feedbacks-list:not(.modal-body #feedbacks-list) {
+            display: none !important;
+        }
+
+        /* Esconder loading e error quando modal estiver ativo */
+        .modal-active #loading,
+        .modal-active #error {
+            display: none !important;
+        }
+
+        /* Responsive Modal */
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 98%;
+                max-height: 95vh;
+                border-radius: 15px;
+            }
+
+            .modal-header {
+                padding: 20px;
+                flex-shrink: 0;
+            }
+
+            .modal-header h2 {
+                font-size: 1.5em;
+            }
+
+            .modal-body {
+                padding: 20px;
+                gap: 20px;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .view-feedbacks-btn {
+                padding: 15px 30px;
+                font-size: 1em;
+            }
+
+            .btn-icon {
+                font-size: 1.3em;
+            }
+
+            .btn-text {
+                font-size: 1em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .modal-content {
+                width: 100%;
+                height: 100vh;
+                max-height: 100vh;
+                border-radius: 0;
+                top: 0;
+                left: 0;
+                transform: none;
+            }
+
+            .modal-header {
+                padding: 15px 20px;
+                flex-shrink: 0;
+            }
+
+            .modal-header h2 {
+                font-size: 1.3em;
+            }
+
+            .modal-body {
+                padding: 15px;
+                flex: 1;
+                min-height: 0;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .modal-body #feedbacks-list {
+                max-height: none;
+                overflow-y: visible;
+            }
+        }
     </style>
 </head>
 
@@ -2025,19 +2229,19 @@
                 <h1 class="header-title">Painel Administrativo</h1>
                 <p class="header-subtitle">Gerencie todos os feedbacks dos seus alunos e clientes</p>
             </div>
-            
+
             <div class="header-actions">
                 <div class="action-buttons">
                     <a href="/" class="action-btn primary">
                         <span class="btn-icon">📋</span>
                         <span class="btn-text">Formulário</span>
                     </a>
-                    
+
                     <button id="settings-btn" class="action-btn secondary">
                         <span class="btn-icon">⚙️</span>
                         <span class="btn-text">Configurações</span>
                     </button>
-                    
+
                     <button id="logout-btn" class="action-btn danger">
                         <span class="btn-icon">🚪</span>
                         <span class="btn-text">Sair</span>
@@ -2055,7 +2259,7 @@
                 <h3>🔍 Filtros e Busca</h3>
                 <p>Encontre feedbacks específicos usando os filtros abaixo</p>
             </div>
-            
+
             <div class="filter-grid">
                 <div class="filter-item">
                     <label for="filter-rating">⭐ Avaliação Geral</label>
@@ -2084,7 +2288,7 @@
                         <span class="btn-icon">🧹</span>
                         <span>Limpar Filtros</span>
                     </button>
-                    
+
                     <button id="expand-all-btn" class="filter-btn expand">
                         <span class="btn-icon">📂</span>
                         <span>Expandir Todos</span>
@@ -2098,13 +2302,172 @@
             <strong>❌ Ops! Algo deu errado na Academia Eloin Fitness</strong>
             <p>Não foi possível carregar os feedbacks. Tente novamente mais tarde.</p>
         </div>
-        <div id="feedbacks-list">
-            <!-- Feedbacks serão inseridos aqui -->
+
+        <!-- Botão para abrir modal de feedbacks -->
+        <div class="view-feedbacks-section">
+            <button id="view-feedbacks-btn" class="view-feedbacks-btn">
+                <span class="btn-icon">📋</span>
+                <span class="btn-text">Ver Todos os Feedbacks</span>
+                <span class="feedbacks-count" id="feedbacks-count">0</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal de Feedbacks -->
+    <div id="feedbacks-modal" class="feedbacks-modal">
+        <div class="modal-overlay" id="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📋 Todos os Feedbacks - Academia Eloin Fitness</h2>
+                <button class="modal-close" id="modal-close">
+                    <span>✕</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="filter-section">
+                    <div class="filter-header">
+                        <h3>🔍 Filtros e Busca</h3>
+                        <p>Encontre feedbacks específicos usando os filtros abaixo</p>
+                    </div>
+
+                    <div class="filter-grid">
+                        <div class="filter-item">
+                            <label for="filter-rating">⭐ Avaliação Geral</label>
+                            <select id="filter-rating">
+                                <option value="">Todas as avaliações</option>
+                                <option value="5">5 estrelas - Excelente</option>
+                                <option value="4">4 estrelas - Muito bom</option>
+                                <option value="3">3 estrelas - Bom</option>
+                                <option value="2">2 estrelas - Regular</option>
+                                <option value="1">1 estrela - Ruim</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-item">
+                            <label for="filter-nps">📊 NPS Score</label>
+                            <select id="filter-nps">
+                                <option value="">Todos os tipos</option>
+                                <option value="9-10">🌟 Promotores (9-10)</option>
+                                <option value="7-8">😐 Neutros (7-8)</option>
+                                <option value="0-6">😞 Detratores (0-6)</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-actions">
+                            <button id="clear-filters" class="filter-btn clear">
+                                <span class="btn-icon">🧹</span>
+                                <span>Limpar Filtros</span>
+                            </button>
+
+                            <button id="expand-all-btn" class="filter-btn expand">
+                                <span class="btn-icon">📂</span>
+                                <span>Expandir Todos</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="feedbacks-list">
+                    <!-- Feedbacks serão inseridos aqui -->
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
         let allFeedbacks = [];
+
+        // ===== MODAL FUNCTIONS =====
+        // Sistema de gerenciamento de scroll para múltiplos modais
+        let modalScrollStack = 0;
+        let originalOverflow = '';
+
+        function lockBodyScroll() {
+            modalScrollStack++;
+            if (modalScrollStack === 1) {
+                originalOverflow = document.body.style.overflow || '';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function unlockBodyScroll() {
+            modalScrollStack--;
+            if (modalScrollStack <= 0) {
+                modalScrollStack = 0;
+                document.body.style.overflow = originalOverflow;
+            }
+        }
+
+        function openFeedbacksModal() {
+            const modal = document.getElementById('feedbacks-modal');
+            if (modal) {
+                modal.classList.add('active');
+                document.body.classList.add('modal-active');
+                lockBodyScroll();
+
+                // Load feedbacks if not already loaded
+                if (allFeedbacks.length === 0) {
+                    loadFeedbacks();
+                } else {
+                    displayFeedbacks(allFeedbacks);
+                }
+            }
+        }
+
+        function closeFeedbacksModal() {
+            const modal = document.getElementById('feedbacks-modal');
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.classList.remove('modal-active');
+                unlockBodyScroll();
+            }
+        }
+
+        // Adicionar função global para debug
+        window.closeFeedbacksModal = closeFeedbacksModal;
+
+        // Função para inicializar os event listeners do modal
+        function initializeModalListeners() {
+            const modalOverlay = document.getElementById('modal-overlay');
+            const modalClose = document.getElementById('modal-close');
+            const viewFeedbacksBtn = document.getElementById('view-feedbacks-btn');
+
+            if (modalOverlay) {
+                modalOverlay.addEventListener('click', closeFeedbacksModal);
+            }
+
+            if (modalClose) {
+                modalClose.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    closeFeedbacksModal();
+                });
+            }
+
+            if (viewFeedbacksBtn) {
+                viewFeedbacksBtn.addEventListener('click', openFeedbacksModal);
+            }
+
+            // ESC key listener
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeFeedbacksModal();
+                }
+            });
+        }
+
+        // Inicializar listeners quando o DOM estiver pronto
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeModalListeners);
+        } else {
+            initializeModalListeners();
+        }
+
+        // Update feedback count
+        function updateFeedbackCount() {
+            const countElement = document.getElementById('feedbacks-count');
+            countElement.textContent = allFeedbacks.length;
+        }
 
         // Função helper para incluir token de autenticação
         function getAuthHeaders() {
@@ -2335,6 +2698,9 @@
             }).join('');
 
             document.getElementById('feedbacks-list').innerHTML = feedbacksHtml;
+
+            // Update feedback count
+            updateFeedbackCount();
 
             // Scroll to top when new feedbacks are loaded
             setTimeout(() => {
@@ -2721,36 +3087,53 @@ Data: ${date}
     </script>
 
     <!-- Modal de Configurações -->
-    <div id="settings-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 10000; backdrop-filter: blur(5px);">
-        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 15px; padding: 30px; width: 90%; max-width: 500px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #f0f0f0; padding-bottom: 15px;">
+    <div id="settings-modal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 10000; backdrop-filter: blur(5px);">
+        <div
+            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 15px; padding: 30px; width: 90%; max-width: 500px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #f0f0f0; padding-bottom: 15px;">
                 <h2 style="color: #333; margin: 0; font-size: 1.5em;">⚙️ Configurações do Sistema</h2>
-                <button id="close-settings" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666; padding: 5px;">×</button>
+                <button id="close-settings"
+                    style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666; padding: 5px;">×</button>
             </div>
-            
+
             <form id="settings-form">
                 <div style="margin-bottom: 20px;">
-                    <label for="new-username" style="display: block; margin-bottom: 8px; color: #333; font-weight: 600;">👤 Novo Usuário:</label>
-                    <input type="text" id="new-username" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em; transition: border-color 0.3s;">
+                    <label for="new-username"
+                        style="display: block; margin-bottom: 8px; color: #333; font-weight: 600;">👤 Novo
+                        Usuário:</label>
+                    <input type="text" id="new-username" required
+                        style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em; transition: border-color 0.3s;">
                 </div>
-                
+
                 <div style="margin-bottom: 20px;">
-                    <label for="current-password" style="display: block; margin-bottom: 8px; color: #333; font-weight: 600;">🔓 Senha Atual:</label>
-                    <input type="password" id="current-password" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em; transition: border-color 0.3s;">
+                    <label for="current-password"
+                        style="display: block; margin-bottom: 8px; color: #333; font-weight: 600;">🔓 Senha
+                        Atual:</label>
+                    <input type="password" id="current-password" required
+                        style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em; transition: border-color 0.3s;">
                 </div>
-                
+
                 <div style="margin-bottom: 25px;">
-                    <label for="new-password" style="display: block; margin-bottom: 8px; color: #333; font-weight: 600;">🔒 Nova Senha:</label>
-                    <input type="password" id="new-password" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em; transition: border-color 0.3s;">
+                    <label for="new-password"
+                        style="display: block; margin-bottom: 8px; color: #333; font-weight: 600;">🔒 Nova
+                        Senha:</label>
+                    <input type="password" id="new-password" required
+                        style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em; transition: border-color 0.3s;">
                 </div>
-                
+
                 <div style="display: flex; gap: 15px; justify-content: flex-end;">
-                    <button type="button" id="cancel-settings" style="padding: 12px 24px; border: 2px solid #ddd; background: white; color: #666; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s;">Cancelar</button>
-                    <button type="submit" style="padding: 12px 24px; background: linear-gradient(45deg, #ffd700, #e6c200); color: #333; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s;">✅ Salvar Alterações</button>
+                    <button type="button" id="cancel-settings"
+                        style="padding: 12px 24px; border: 2px solid #ddd; background: white; color: #666; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s;">Cancelar</button>
+                    <button type="submit"
+                        style="padding: 12px 24px; background: linear-gradient(45deg, #ffd700, #e6c200); color: #333; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s;">✅
+                        Salvar Alterações</button>
                 </div>
             </form>
-            
-            <div id="settings-message" style="margin-top: 15px; padding: 12px; border-radius: 8px; display: none;"></div>
+
+            <div id="settings-message" style="margin-top: 15px; padding: 12px; border-radius: 8px; display: none;">
+            </div>
         </div>
     </div>
 
@@ -2817,7 +3200,7 @@ Data: ${date}
         // Script de configurações - executado no final da página
         setTimeout(() => {
             console.log('Inicializando configurações...');
-            
+
             const settingsBtn = document.getElementById('settings-btn');
             const settingsModal = document.getElementById('settings-modal');
             const closeSettings = document.getElementById('close-settings');
@@ -2836,11 +3219,11 @@ Data: ${date}
 
             if (settingsBtn && settingsModal) {
                 console.log('Configurando event listeners...');
-                
+
                 // Função para fechar modal
                 function closeSettingsModal() {
                     settingsModal.style.display = 'none';
-                    document.body.style.overflow = 'auto';
+                    unlockBodyScroll(); // Use centralized scroll management
                     if (settingsForm) settingsForm.reset();
                     if (settingsMessage) settingsMessage.style.display = 'none';
                 }
@@ -2849,14 +3232,14 @@ Data: ${date}
                 settingsBtn.addEventListener('click', () => {
                     console.log('Botão configurações clicado!');
                     settingsModal.style.display = 'block';
-                    document.body.style.overflow = 'hidden';
+                    lockBodyScroll(); // Use centralized scroll management
                 });
 
                 // Fechar modal
                 if (closeSettings) {
                     closeSettings.addEventListener('click', closeSettingsModal);
                 }
-                
+
                 if (cancelSettings) {
                     cancelSettings.addEventListener('click', closeSettingsModal);
                 }
@@ -2872,7 +3255,7 @@ Data: ${date}
                 if (settingsForm) {
                     settingsForm.addEventListener('submit', async (e) => {
                         e.preventDefault();
-                        
+
                         const newUsername = document.getElementById('new-username')?.value;
                         const currentPassword = document.getElementById('current-password')?.value;
                         const newPassword = document.getElementById('new-password')?.value;

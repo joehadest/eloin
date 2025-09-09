@@ -3,6 +3,7 @@ const { MongoClient } = require('mongodb');
 const cors = require('cors');
 const path = require('path');
 const session = require('express-session');
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 const app = express();
 
@@ -210,25 +211,25 @@ app.post('/api/update-credentials', requireAuthToken, (req, res) => {
 
         // Verificar se todos os campos foram enviados
         if (!newUsername || !currentPassword || !newPassword) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Todos os campos são obrigatórios' 
+            return res.status(400).json({
+                success: false,
+                message: 'Todos os campos são obrigatórios'
             });
         }
 
         // Verificar senha atual
         if (currentPassword !== currentCredentials.password) {
-            return res.status(401).json({ 
-                success: false, 
-                message: 'Senha atual incorreta' 
+            return res.status(401).json({
+                success: false,
+                message: 'Senha atual incorreta'
             });
         }
 
         // Validar nova senha (mínimo 6 caracteres)
         if (newPassword.length < 6) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'A nova senha deve ter pelo menos 6 caracteres' 
+            return res.status(400).json({
+                success: false,
+                message: 'A nova senha deve ter pelo menos 6 caracteres'
             });
         }
 
@@ -238,16 +239,16 @@ app.post('/api/update-credentials', requireAuthToken, (req, res) => {
 
         console.log(`✅ Credenciais atualizadas - Usuário: ${newUsername}`);
 
-        res.json({ 
-            success: true, 
-            message: 'Credenciais atualizadas com sucesso' 
+        res.json({
+            success: true,
+            message: 'Credenciais atualizadas com sucesso'
         });
 
     } catch (error) {
         console.error('Erro ao atualizar credenciais:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'Erro interno do servidor' 
+        res.status(500).json({
+            success: false,
+            message: 'Erro interno do servidor'
         });
     }
 });

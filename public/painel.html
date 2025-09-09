@@ -50,13 +50,14 @@
             color: var(--text-color);
             line-height: 1.6;
             margin: 0;
-            padding: 20px;
+            padding: 15px;
         }
 
         .painel-container {
-            max-width: 1400px;
+            max-width: 95vw;
+            width: 100%;
             margin: 0 auto;
-            padding: 30px 20px;
+            padding: 20px;
         }
 
         /* ===== NOVO HEADER DESIGN ===== */
@@ -302,10 +303,24 @@
         /* Stats Section */
         .stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 35px;
             animation: fadeInUp 0.6s ease-out 0.1s both;
+        }
+
+        @media (min-width: 768px) {
+            .stats {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 25px;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .stats {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 30px;
+            }
         }
 
         .stat-card {
@@ -409,9 +424,23 @@
 
         .filter-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
             margin-bottom: 25px;
+        }
+
+        @media (min-width: 768px) {
+            .filter-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 25px;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .filter-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 30px;
+            }
         }
 
         .filter-item {
@@ -558,11 +587,29 @@
 
         /* Scrollable Feedbacks Container */
         #feedbacks-list {
-            max-height: 70vh;
+            max-height: 75vh;
             overflow-y: auto;
             overflow-x: hidden;
             scrollbar-width: thin;
             scrollbar-color: rgba(255, 215, 0, 0.3) rgba(220, 220, 220, 0.5);
+            display: grid;
+            gap: 20px;
+            grid-template-columns: 1fr;
+        }
+
+        @media (min-width: 1200px) {
+            #feedbacks-list {
+                max-height: 80vh;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 25px;
+            }
+        }
+
+        @media (min-width: 1600px) {
+            #feedbacks-list {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 30px;
+            }
         }
 
         #feedbacks-list::-webkit-scrollbar {
@@ -596,9 +643,11 @@
             border-radius: var(--border-radius);
             box-shadow: var(--shadow);
             border: 1px solid rgba(255, 215, 0, 0.2);
-            margin-bottom: 15px;
+            margin-bottom: 0;
             overflow: hidden;
             transition: all 0.3s ease;
+            height: fit-content;
+            break-inside: avoid;
         }
 
         .accordion-item:hover {
@@ -1678,6 +1727,40 @@
             }
         }
 
+        /* Otimizações para Desktop Grande */
+        @media screen and (min-width: 1400px) {
+            .painel-container {
+                padding: 25px 30px;
+            }
+
+            .main-header {
+                padding: 35px 40px;
+            }
+
+            .filter-section {
+                padding: 35px 40px;
+            }
+
+            .stat-card {
+                padding: 35px 25px;
+            }
+
+            .accordion-item {
+                border-radius: 18px;
+            }
+        }
+
+        @media screen and (min-width: 1800px) {
+            .painel-container {
+                max-width: 98vw;
+                padding: 30px 40px;
+            }
+
+            #feedbacks-list {
+                max-height: 85vh;
+            }
+        }
+
         .feedback-header {
             display: flex;
             justify-content: space-between;
@@ -2634,98 +2717,7 @@ Data: ${date}
             }
         });
 
-        // Configurações do sistema
-        const settingsBtn = document.getElementById('settings-btn');
-        const settingsModal = document.getElementById('settings-modal');
-        const closeSettings = document.getElementById('close-settings');
-        const cancelSettings = document.getElementById('cancel-settings');
-        const settingsForm = document.getElementById('settings-form');
-        const settingsMessage = document.getElementById('settings-message');
 
-        // Abrir modal de configurações
-        settingsBtn.addEventListener('click', () => {
-            settingsModal.style.display = 'block';
-            document.body.style.overflow = 'hidden';
-        });
-
-        // Fechar modal de configurações
-        function closeSettingsModal() {
-            settingsModal.style.display = 'none';
-            document.body.style.overflow = 'auto';
-            settingsForm.reset();
-            settingsMessage.style.display = 'none';
-        }
-
-        closeSettings.addEventListener('click', closeSettingsModal);
-        cancelSettings.addEventListener('click', closeSettingsModal);
-
-        // Fechar modal ao clicar fora
-        settingsModal.addEventListener('click', (e) => {
-            if (e.target === settingsModal) {
-                closeSettingsModal();
-            }
-        });
-
-        // Mostrar mensagem no modal
-        function showSettingsMessage(message, type = 'success') {
-            settingsMessage.textContent = message;
-            settingsMessage.style.display = 'block';
-            settingsMessage.style.backgroundColor = type === 'success' ? '#d4edda' : '#f8d7da';
-            settingsMessage.style.color = type === 'success' ? '#155724' : '#721c24';
-            settingsMessage.style.border = `1px solid ${type === 'success' ? '#c3e6cb' : '#f5c6cb'}`;
-        }
-
-        // Enviar formulário de configurações
-        settingsForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const newUsername = document.getElementById('new-username').value;
-            const currentPassword = document.getElementById('current-password').value;
-            const newPassword = document.getElementById('new-password').value;
-
-            try {
-                const response = await fetch('/api/update-credentials', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        newUsername,
-                        currentPassword,
-                        newPassword
-                    })
-                });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    showSettingsMessage('✅ Credenciais atualizadas com sucesso!', 'success');
-                    setTimeout(() => {
-                        closeSettingsModal();
-                        alert('Credenciais atualizadas! Você será redirecionado para fazer login novamente.');
-                        window.location.href = '/login.html';
-                    }, 2000);
-                } else {
-                    showSettingsMessage(`❌ ${result.message || 'Erro ao atualizar credenciais'}`, 'error');
-                }
-            } catch (error) {
-                console.error('Erro ao atualizar credenciais:', error);
-                showSettingsMessage('❌ Erro de conexão. Tente novamente.', 'error');
-            }
-        });
-
-        // Adicionar efeito de foco nos inputs
-        document.querySelectorAll('#settings-modal input').forEach(input => {
-            input.addEventListener('focus', () => {
-                input.style.borderColor = '#ffd700';
-                input.style.boxShadow = '0 0 0 3px rgba(255, 215, 0, 0.15)';
-            });
-            
-            input.addEventListener('blur', () => {
-                input.style.borderColor = '#e0e0e0';
-                input.style.boxShadow = 'none';
-            });
-        });
     </script>
 
     <!-- Modal de Configurações -->
@@ -2820,6 +2812,113 @@ Data: ${date}
             }
         }
     </style>
+
+    <script>
+        // Script de configurações - executado no final da página
+        setTimeout(() => {
+            console.log('Inicializando configurações...');
+            
+            const settingsBtn = document.getElementById('settings-btn');
+            const settingsModal = document.getElementById('settings-modal');
+            const closeSettings = document.getElementById('close-settings');
+            const cancelSettings = document.getElementById('cancel-settings');
+            const settingsForm = document.getElementById('settings-form');
+            const settingsMessage = document.getElementById('settings-message');
+
+            console.log('Elementos encontrados:', {
+                settingsBtn: !!settingsBtn,
+                settingsModal: !!settingsModal,
+                closeSettings: !!closeSettings,
+                cancelSettings: !!cancelSettings,
+                settingsForm: !!settingsForm,
+                settingsMessage: !!settingsMessage
+            });
+
+            if (settingsBtn && settingsModal) {
+                console.log('Configurando event listeners...');
+                
+                // Função para fechar modal
+                function closeSettingsModal() {
+                    settingsModal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                    if (settingsForm) settingsForm.reset();
+                    if (settingsMessage) settingsMessage.style.display = 'none';
+                }
+
+                // Abrir modal
+                settingsBtn.addEventListener('click', () => {
+                    console.log('Botão configurações clicado!');
+                    settingsModal.style.display = 'block';
+                    document.body.style.overflow = 'hidden';
+                });
+
+                // Fechar modal
+                if (closeSettings) {
+                    closeSettings.addEventListener('click', closeSettingsModal);
+                }
+                
+                if (cancelSettings) {
+                    cancelSettings.addEventListener('click', closeSettingsModal);
+                }
+
+                // Fechar ao clicar fora
+                settingsModal.addEventListener('click', (e) => {
+                    if (e.target === settingsModal) {
+                        closeSettingsModal();
+                    }
+                });
+
+                // Form submit
+                if (settingsForm) {
+                    settingsForm.addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        
+                        const newUsername = document.getElementById('new-username')?.value;
+                        const currentPassword = document.getElementById('current-password')?.value;
+                        const newPassword = document.getElementById('new-password')?.value;
+
+                        if (!newUsername || !currentPassword || !newPassword) {
+                            alert('Por favor, preencha todos os campos');
+                            return;
+                        }
+
+                        try {
+                            const response = await fetch('/api/update-credentials', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    newUsername,
+                                    currentPassword,
+                                    newPassword
+                                })
+                            });
+
+                            const result = await response.json();
+
+                            if (response.ok) {
+                                alert('✅ Credenciais atualizadas com sucesso!');
+                                setTimeout(() => {
+                                    closeSettingsModal();
+                                    window.location.href = '/login.html';
+                                }, 1000);
+                            } else {
+                                alert(`❌ ${result.message || 'Erro ao atualizar credenciais'}`);
+                            }
+                        } catch (error) {
+                            console.error('Erro ao atualizar credenciais:', error);
+                            alert('❌ Erro de conexão. Tente novamente.');
+                        }
+                    });
+                }
+
+                console.log('Configurações inicialized com sucesso!');
+            } else {
+                console.error('Botão ou modal de configurações não encontrado');
+            }
+        }, 100);
+    </script>
 </body>
 
 </html>

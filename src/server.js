@@ -28,23 +28,23 @@ app.use(session({
     }
 }));
 
-// Conexão com MongoDB (comentada para teste)
-// const uri = process.env.MONGODB_URI || process.env.npm_config_mongodb_uri;
-// const client = new MongoClient(uri);
+// Conexão com MongoDB
+const uri = process.env.MONGODB_URI || process.env.npm_config_mongodb_uri;
+const client = new MongoClient(uri);
 
-// async function connectDB() {
-//     try {
-//         console.log('Tentando conectar ao MongoDB...');
-//         console.log('URI:', uri ? 'Configurada' : 'Não encontrada');
-//         await client.connect();
-//         console.log('✅ Conectado ao MongoDB com sucesso!');
-//     } catch (error) {
-//         console.error('❌ Erro ao conectar ao MongoDB:', error.message);
-//         console.error('Detalhes do erro:', error);
-//     }
-// }
+async function connectDB() {
+    try {
+        console.log('Tentando conectar ao MongoDB...');
+        console.log('URI:', uri ? 'Configurada' : 'Não encontrada');
+        await client.connect();
+        console.log('✅ Conectado ao MongoDB com sucesso!');
+    } catch (error) {
+        console.error('❌ Erro ao conectar ao MongoDB:', error.message);
+        console.error('Detalhes do erro:', error);
+    }
+}
 
-// connectDB();
+connectDB();
 
 // Middleware de autenticação
 function requireAuth(req, res, next) {

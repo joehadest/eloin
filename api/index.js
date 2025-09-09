@@ -15,7 +15,34 @@ const SESSION_SECRET = process.env.SESSION_SECRET || 'elohim-secret-key-2024';
 
 // Middleware
 app.use(cors({
-    origin: '*',
+    origin: function (origin, callback) {
+        // Permitir requests sem origin (como mobile apps, Postman, etc.)
+        if (!origin) return callback(null, true);
+
+        // Lista de origens permitidas
+        const allowedOrigins = [
+            'http://localhost:3000',
+            'http://localhost:5000',
+            'https://eloin.vercel.app',
+            'https://eloin-fitness-academia.vercel.app',
+            /\.vercel\.app$/
+        ];
+
+        // Verificar se a origem é permitida
+        const isAllowed = allowedOrigins.some(allowed => {
+            if (typeof allowed === 'string') {
+                return allowed === origin;
+            } else {
+                return allowed.test(origin);
+            }
+        });
+
+        if (isAllowed) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true
 }));
 app.use(express.json());
@@ -26,11 +53,13 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: false, // Temporariamente false para debug no Vercel
+        secure: process.env.NODE_ENV === 'production', // true apenas em produção
         maxAge: 24 * 60 * 60 * 1000,
-        sameSite: 'lax',
-        httpOnly: true
-    }
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        httpOnly: true,
+        domain: process.env.NODE_ENV === 'production' ? '.vercel.app' : undefined
+    },
+    name: 'eloin-session' // Nome personalizado para evitar conflitos
 }));
 
 // Store para tokens de sessão simples (em memória para esta demonstração)
@@ -86,25 +115,43 @@ async function connectToDatabase() {
 
 // Rotas da API
 
-// Rota para verificar status de autenticação
-app.get('/api/auth/status', (req, res) => {
-    const token = req.headers['x-auth-token'];
-    const sessionAuth = !!req.session.authenticated;
-    const tokenAuth = token && activeTokens.has(token);
-
-    console.log('Verificando status de autenticação:', {
-        sessionID: req.sessionID,
-        sessionAuth,
-        tokenAuth,
-        token: token ? 'presente' : 'ausente',
-        activeTokensCount: activeTokens.size
-    });
-
+// Health check
+app.get('/api/health', (req, res) => {
     res.json({
-        authenticated: sessionAuth || tokenAuth,
-        sessionID: req.sessionID,
-        method: tokenAuth ? 'token' : sessionAuth ? 'session' : 'none'
+        status: 'OK',
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'development',
+        mongodb: client ? 'connected' : 'disconnected'
     });
+});
+app.get('/api/auth/status', (req, res) => {
+    try {
+        const token = req.headers['x-auth-token'];
+        const sessionAuth = !!(req.session && req.session.authenticated);
+        const tokenAuth = token && activeTokens.has(token);
+
+        console.log('Verificando status de autenticação:', {
+            sessionID: req.sessionID,
+            sessionAuth,
+            tokenAuth,
+            token: token ? 'presente' : 'ausente',
+            activeTokensCount: activeTokens.size,
+            sessionUsername: req.session ? req.session.username : 'none'
+        });
+
+        res.json({
+            authenticated: sessionAuth || tokenAuth,
+            sessionID: req.sessionID,
+            method: tokenAuth ? 'token' : sessionAuth ? 'session' : 'none',
+            username: req.session ? req.session.username : null
+        });
+    } catch (error) {
+        console.error('Erro ao verificar status de autenticação:', error);
+        res.status(500).json({
+            authenticated: false,
+            error: 'Erro interno do servidor'
+        });
+    }
 });// Rota para enviar feedback
 app.post('/api/feedback', async (req, res) => {
     try {
@@ -134,28 +181,46 @@ app.post('/api/feedback', async (req, res) => {
 
 // Rota para login
 app.post('/api/login', (req, res) => {
-    const { username, password } = req.body;
+    try {
+        const { username, password } = req.body;
 
-    if (username === currentCredentials.username && password === currentCredentials.password) {
-        // Autenticação tradicional para localhost
-        req.session.authenticated = true;
+        console.log('Tentativa de login:', { username, hasPassword: !!password });
 
-        // Gerar token para Vercel
-        const token = generateSimpleToken();
-        activeTokens.add(token);
+        if (username === currentCredentials.username && password === currentCredentials.password) {
+            // Autenticação tradicional para localhost
+            req.session.authenticated = true;
+            req.session.username = username;
 
-        // Limpar tokens antigos após 24 horas
-        setTimeout(() => {
-            activeTokens.delete(token);
-        }, 24 * 60 * 60 * 1000);
+            // Gerar token para Vercel
+            const token = generateSimpleToken();
+            activeTokens.add(token);
 
-        res.json({
-            success: true,
-            message: 'Login realizado com sucesso!',
-            token: token
+            // Limpar tokens antigos após 24 horas
+            setTimeout(() => {
+                activeTokens.delete(token);
+            }, 24 * 60 * 60 * 1000);
+
+            console.log('Login bem-sucedido para usuário:', username);
+
+            res.json({
+                success: true,
+                message: 'Login realizado com sucesso!',
+                token: token,
+                username: username
+            });
+        } else {
+            console.log('Credenciais inválidas para usuário:', username);
+            res.status(401).json({
+                success: false,
+                error: 'Credenciais inválidas'
+            });
+        }
+    } catch (error) {
+        console.error('Erro no login:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Erro interno do servidor'
         });
-    } else {
-        res.status(401).json({ error: 'Credenciais inválidas' });
     }
 });
 

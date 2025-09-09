@@ -14,38 +14,11 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'elohim2024';
 const SESSION_SECRET = process.env.SESSION_SECRET || 'elohim-secret-key-2024';
 
 // Middleware
-app.use(cors({
-    origin: function (origin, callback) {
-        // Permitir requests sem origin (como mobile apps, Postman, etc.)
-        if (!origin) return callback(null, true);
-
-        // Lista de origens permitidas
-        const allowedOrigins = [
-            'http://localhost:3000',
-            'http://localhost:5000',
-            'https://eloin.vercel.app',
-            'https://eloin-fitness-academia.vercel.app',
-            /\.vercel\.app$/
-        ];
-
-        // Verificar se a origem é permitida
-        const isAllowed = allowedOrigins.some(allowed => {
-            if (typeof allowed === 'string') {
-                return allowed === origin;
-            } else {
-                return allowed.test(origin);
-            }
-        });
-
-        if (isAllowed) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    credentials: true
-}));
+app.use(cors()); // Simplificado para debug
 app.use(express.json());
+
+// Servir arquivos estáticos SEMPRE (não só em desenvolvimento)
+app.use(express.static(path.join(__dirname, '../public')));
 
 // Configuração de sessão para Vercel
 app.use(session({
@@ -65,11 +38,65 @@ app.use(session({
 // Store para tokens de sessão simples (em memória para esta demonstração)
 let activeTokens = new Set();
 
-// Store para credenciais atualizadas (em memória)
+// Store para credenciais atualizadas (inicializado com padrões)
 let currentCredentials = {
     username: ADMIN_USERNAME,
     password: ADMIN_PASSWORD
 };
+
+// Função para carregar credenciais do banco de dados
+async function loadCredentialsFromDatabase() {
+    try {
+        const database = await connectToDatabase();
+        const settings = database.collection('settings');
+
+        const credentialDoc = await settings.findOne({ type: 'admin_credentials' });
+
+        if (credentialDoc) {
+            currentCredentials.username = credentialDoc.username;
+            currentCredentials.password = credentialDoc.password;
+            console.log('✅ Credenciais carregadas do banco de dados:', credentialDoc.username);
+            return true;
+        } else {
+            console.log('ℹ️ Nenhuma credencial encontrada no banco, usando padrão');
+            return false;
+        }
+    } catch (error) {
+        console.error('❌ Erro ao carregar credenciais do banco:', error.message);
+        return false;
+    }
+}
+
+// Função para salvar credenciais no banco de dados
+async function saveCredentialsToDatabase(username, password) {
+    try {
+        if (!client) {
+            console.log('MongoDB não conectado, não foi possível salvar credenciais');
+            return false;
+        }
+
+        const database = await connectToDatabase();
+        const settings = database.collection('settings');
+
+        await settings.updateOne(
+            { type: 'admin_credentials' },
+            {
+                $set: {
+                    username: username,
+                    password: password,
+                    updatedAt: new Date()
+                }
+            },
+            { upsert: true }
+        );
+
+        console.log('✅ Credenciais salvas no banco de dados');
+        return true;
+    } catch (error) {
+        console.error('❌ Erro ao salvar credenciais no banco:', error);
+        return false;
+    }
+}
 
 // Função para gerar token simples
 function generateSimpleToken() {
@@ -104,25 +131,64 @@ let client;
 let db;
 
 async function connectToDatabase() {
-    if (!client) {
-        client = new MongoClient(MONGODB_URI);
-        await client.connect();
-        db = client.db('elohim_fitness');
-        console.log('🚀 Conectado ao MongoDB Atlas - Academia Elohim Fitness');
+    try {
+        if (!client) {
+            console.log('🔄 Conectando ao MongoDB...');
+            client = new MongoClient(MONGODB_URI);
+            await client.connect();
+            db = client.db('elohim_fitness');
+            console.log('✅ Conectado ao MongoDB Atlas');
+        }
+        return db;
+    } catch (error) {
+        console.error('❌ Erro ao conectar ao MongoDB:', error.message);
+        client = null;
+        throw error;
     }
-    return db;
 }
 
 // Rotas da API
 
-// Health check
-app.get('/api/health', (req, res) => {
+// Teste simples
+app.get('/api/test', (req, res) => {
     res.json({
-        status: 'OK',
-        timestamp: new Date().toISOString(),
-        environment: process.env.NODE_ENV || 'development',
-        mongodb: client ? 'connected' : 'disconnected'
+        message: 'Servidor funcionando!',
+        credentials: {
+            username: currentCredentials.username,
+            hasPassword: !!currentCredentials.password
+        }
     });
+});
+
+// Endpoint temporário para inicializar credenciais (versão simplificada)
+app.post('/api/init-credentials', (req, res) => {
+    try {
+        const { username, password } = req.body;
+
+        if (!username || !password) {
+            return res.status(400).json({
+                success: false,
+                message: 'Username e password são obrigatórios'
+            });
+        }
+
+        // Salvar diretamente na memória (sem MongoDB por enquanto)
+        currentCredentials.username = username;
+        currentCredentials.password = password;
+
+        console.log(`✅ Credenciais inicializadas: ${username}`);
+
+        res.json({
+            success: true,
+            message: 'Credenciais inicializadas com sucesso (em memória)'
+        });
+    } catch (error) {
+        console.error('Erro ao inicializar credenciais:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro interno do servidor'
+        });
+    }
 });
 app.get('/api/auth/status', (req, res) => {
     try {
@@ -270,7 +336,7 @@ app.delete('/api/feedback/:id', requireAuthToken, async (req, res) => {
 });
 
 // Rota para atualizar credenciais - PROTEGIDA
-app.post('/api/update-credentials', requireAuthToken, (req, res) => {
+app.post('/api/update-credentials', requireAuthToken, async (req, res) => {
     try {
         const { newUsername, currentPassword, newPassword } = req.body;
 
@@ -302,11 +368,14 @@ app.post('/api/update-credentials', requireAuthToken, (req, res) => {
         currentCredentials.username = newUsername;
         currentCredentials.password = newPassword;
 
-        console.log(`✅ Credenciais atualizadas - Usuário: ${newUsername}`);
+        // Salvar no banco de dados
+        const saved = await saveCredentialsToDatabase(newUsername, newPassword);
+
+        console.log(`✅ Credenciais atualizadas - Usuário: ${newUsername} - Salvo no DB: ${saved}`);
 
         res.json({
             success: true,
-            message: 'Credenciais atualizadas com sucesso'
+            message: saved ? 'Credenciais atualizadas com sucesso' : 'Credenciais atualizadas (não foi possível salvar no banco)'
         });
 
     } catch (error) {
@@ -323,33 +392,51 @@ app.get('/api/auth/check', (req, res) => {
     res.json({ authenticated: !!req.session.authenticated });
 });
 
-// Rotas para servir arquivos estáticos (para desenvolvimento local)
-if (process.env.NODE_ENV !== 'production') {
-    app.use(express.static(path.join(__dirname, '../public')));
+// Rotas para servir páginas HTML SEMPRE
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/index.html'));
+});
 
-    app.get('/', (req, res) => {
-        res.sendFile(path.join(__dirname, '../public/index.html'));
-    });
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/login.html'));
+});
 
-    app.get('/login', (req, res) => {
-        res.sendFile(path.join(__dirname, '../public/login.html'));
-    });
-
-    app.get('/painel', (req, res) => {
-        res.sendFile(path.join(__dirname, '../public/painel.html'));
-    });
-}
+app.get('/painel', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/painel.html'));
+});
 
 // Exportar app para Vercel
 module.exports = app;
 
+// Inicializar credenciais do banco de dados para Vercel
+if (require.main !== module) {
+    // Executar apenas no ambiente Vercel
+    setTimeout(async () => {
+        try {
+            await loadCredentialsFromDatabase();
+            console.log('Credenciais carregadas do banco no Vercel');
+        } catch (error) {
+            console.error('Erro ao carregar credenciais no Vercel:', error);
+        }
+    }, 1000);
+}
+
 // Para execução local
 if (require.main === module) {
     const port = process.env.PORT || 3000;
-    app.listen(port, () => {
+    app.listen(port, async () => {
         console.log(`🚀 Servidor Academia Elohim Fitness rodando na porta ${port}`);
         console.log(`📝 Formulário: http://localhost:${port}`);
         console.log(`🔐 Login Admin: http://localhost:${port}/login`);
         console.log(`📊 Painel Admin: http://localhost:${port}/painel`);
+
+        // Carregar credenciais do banco de dados na inicialização
+        console.log('🔄 Carregando credenciais do banco de dados...');
+        const loaded = await loadCredentialsFromDatabase();
+        if (loaded) {
+            console.log('✅ Credenciais do banco carregadas com sucesso');
+        } else {
+            console.log('⚠️ Usando credenciais padrão do .env');
+        }
     });
 }

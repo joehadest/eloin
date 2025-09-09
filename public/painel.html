@@ -2559,11 +2559,11 @@
 
         function displayStats(feedbacks) {
             const totalFeedbacks = feedbacks.length;
-            const avgRating = feedbacks.length > 0 ? (feedbacks.reduce((sum, f) => sum + parseInt(f.rating), 0) / totalFeedbacks).toFixed(1) : 0;
-            const avgNPS = feedbacks.length > 0 ? (feedbacks.reduce((sum, f) => sum + parseInt(f.nps), 0) / totalFeedbacks).toFixed(1) : 0;
+            const avgRating = feedbacks.length > 0 ? (feedbacks.reduce((sum, f) => sum + parseInt(f.satisfacao || 0), 0) / totalFeedbacks).toFixed(1) : 0;
+            const avgNPS = feedbacks.length > 0 ? (feedbacks.reduce((sum, f) => sum + parseInt(f.indicacao || 0), 0) / totalFeedbacks).toFixed(1) : 0;
 
-            const promoters = feedbacks.filter(f => parseInt(f.nps) >= 9).length;
-            const detractors = feedbacks.filter(f => parseInt(f.nps) <= 6).length;
+            const promoters = feedbacks.filter(f => parseInt(f.indicacao || 0) >= 9).length;
+            const detractors = feedbacks.filter(f => parseInt(f.indicacao || 0) <= 6).length;
             const npsScore = totalFeedbacks > 0 ? (((promoters - detractors) / totalFeedbacks) * 100).toFixed(1) : 0;
 
             document.getElementById('stats').innerHTML = `
@@ -2615,8 +2615,8 @@
                                 <div class="accordion-title">${feedback.name}</div>
                                 <div class="accordion-meta">
                                     <span class="meta-item">📧 <strong>${feedback.email}</strong></span>
-                                    <span class="meta-item">⭐ ${feedback.rating}/5</span>
-                                    <span class="meta-item">📊 NPS: ${feedback.nps}/10</span>
+                                    <span class="meta-item">⭐ ${feedback.satisfacao || 'N/A'}/10</span>
+                                    <span class="meta-item">📊 NPS: ${feedback.indicacao || 'N/A'}/10</span>
                                     <span class="meta-item">📅 ${date}</span>
                                 </div>
                             </div>
@@ -2629,50 +2629,72 @@
                                         <span>${feedback.email}</span>
                                     </div>
                                     <div class="feedback-field">
-                                        <label>🎂 Idade:</label>
-                                        <span>${feedback.idade}</span>
-                                    </div>
-                                    <div class="feedback-field">
                                         <label>⏰ Tempo como cliente:</label>
-                                        <span>${feedback['tempo-cliente']}</span>
+                                        <span>${feedback['tempo-treino'] || 'N/A'}</span>
                                     </div>
                                     <div class="feedback-field">
-                                        <label>🏋️ Frequência:</label>
-                                        <span>${feedback.frequencia}</span>
+                                        <label>👨‍🏫 Acompanhado por instrutor:</label>
+                                        <span>${feedback['acompanhado-instrutor'] || 'N/A'}</span>
                                     </div>
-                                    <div class="feedback-field">
-                                        <label>🎯 Atividades:</label>
-                                        <div class="atividades-list">
-                                            ${atividades.map(atividade => `<span class="atividade-tag">${atividade}</span>`).join('')}
+                                    ${feedback['instrutor-nome'] ? `
+                                        <div class="feedback-field">
+                                            <label>👨‍� Nome do instrutor:</label>
+                                            <span>${feedback['instrutor-nome']}</span>
                                         </div>
+                                    ` : ''}
+                                    ${feedback['experiencia-instrutor'] ? `
+                                        <div class="feedback-field" style="grid-column: 1 / -1;">
+                                            <label>💭 Experiência com instrutor:</label>
+                                            <span>${feedback['experiencia-instrutor']}</span>
+                                        </div>
+                                    ` : ''}
+                                    <div class="feedback-field" style="grid-column: 1 / -1;">
+                                        <label>🌟 Experiência geral:</label>
+                                        <span>${feedback['experiencia-geral'] || 'N/A'}</span>
+                                    </div>
+                                    <div class="feedback-field" style="grid-column: 1 / -1;">
+                                        <label>🎯 Razão da escolha:</label>
+                                        <span>${feedback['razao-escolha'] || 'N/A'}</span>
+                                    </div>
+                                    <div class="feedback-field" style="grid-column: 1 / -1;">
+                                        <label>🏗️ Estrutura física:</label>
+                                        <span>${feedback['estrutura-fisica'] || 'N/A'}</span>
+                                    </div>
+                                    <div class="feedback-field" style="grid-column: 1 / -1;">
+                                        <label>🕐 Horários e aulas:</label>
+                                        <span>${feedback['horarios-aulas'] || 'N/A'}</span>
+                                    </div>
+                                    <div class="feedback-field" style="grid-column: 1 / -1;">
+                                        <label>🏢 Ambiente:</label>
+                                        <span>${feedback['ambiente'] || 'N/A'}</span>
+                                    </div>
+                                    <div class="feedback-field" style="grid-column: 1 / -1;">
+                                        <label>👥 Atenção da equipe:</label>
+                                        <span>${feedback['atencao-equipe'] || 'N/A'}</span>
                                     </div>
                                     <div class="feedback-field">
-                                        <label>🏋️ Avaliação Equipamentos:</label>
-                                        <span class="rating-stars">${'★'.repeat(feedback['rating-equipamentos'])}${'☆'.repeat(5 - feedback['rating-equipamentos'])}</span>
+                                        <label>� Se sente ouvido:</label>
+                                        <span>${feedback['ouvido'] || 'N/A'}</span>
                                     </div>
-                                    <div class="feedback-field">
-                                        <label>🧹 Avaliação Limpeza:</label>
-                                        <span class="rating-stars">${'★'.repeat(feedback['rating-limpeza'])}${'☆'.repeat(5 - feedback['rating-limpeza'])}</span>
-                                    </div>
-                                    <div class="feedback-field">
-                                        <label>👥 Avaliação Atendimento:</label>
-                                        <span class="rating-stars">${'★'.repeat(feedback['rating-atendimento'])}${'☆'.repeat(5 - feedback['rating-atendimento'])}</span>
-                                    </div>
-                                    <div class="feedback-field">
-                                        <label>🕐 Avaliação Horários:</label>
-                                        <span class="rating-stars">${'★'.repeat(feedback['rating-horarios'])}${'☆'.repeat(5 - feedback['rating-horarios'])}</span>
-                                    </div>
-                                    <div class="feedback-field">
-                                        <label>🔍 Como conheceu:</label>
-                                        <span>${feedback['como-conheceu']}</span>
-                                    </div>
+                                    ${feedback['profissional-destaque'] ? `
+                                        <div class="feedback-field" style="grid-column: 1 / -1;">
+                                            <label>⭐ Profissional em destaque:</label>
+                                            <span>${feedback['profissional-destaque']}</span>
+                                        </div>
+                                    ` : ''}
+                                    ${feedback['novos-servicos'] ? `
+                                        <div class="feedback-field" style="grid-column: 1 / -1;">
+                                            <label>🆕 Novos serviços sugeridos:</label>
+                                            <span>${feedback['novos-servicos']}</span>
+                                        </div>
+                                    ` : ''}
                                     <div class="feedback-field">
                                         <label>📈 NPS:</label>
-                                        <span class="nps-score">${feedback.nps}/10</span>
+                                        <span class="nps-score">${feedback.indicacao || 'N/A'}/10</span>
                                     </div>
                                     <div class="feedback-field">
                                         <label>⭐ Avaliação Geral:</label>
-                                        <span class="rating-stars">${'★'.repeat(feedback.rating)}${'☆'.repeat(5 - feedback.rating)}</span>
+                                        <span class="rating-stars">${feedback.satisfacao || 'N/A'}/10</span>
                                     </div>
                                     ${feedback.melhorias ? `
                                         <div class="feedback-field" style="grid-column: 1 / -1;">
@@ -2719,13 +2741,13 @@
             let filteredFeedbacks = allFeedbacks;
 
             if (ratingFilter) {
-                filteredFeedbacks = filteredFeedbacks.filter(f => f.rating === ratingFilter);
+                filteredFeedbacks = filteredFeedbacks.filter(f => f.satisfacao === ratingFilter);
             }
 
             if (npsFilter) {
                 const [min, max] = npsFilter.split('-').map(Number);
                 filteredFeedbacks = filteredFeedbacks.filter(f => {
-                    const nps = parseInt(f.nps);
+                    const nps = parseInt(f.indicacao || 0);
                     return nps >= min && nps <= max;
                 });
             }
@@ -2772,7 +2794,6 @@
             if (!feedback) return;
 
             const date = new Date(feedback.timestamp).toLocaleString('pt-BR');
-            const atividades = Array.isArray(feedback.atividades) ? feedback.atividades : [feedback.atividades].filter(Boolean);
 
             const text = `
 FEEDBACK - ACADEMIA ELOIN FITNESS
@@ -2780,19 +2801,28 @@ FEEDBACK - ACADEMIA ELOIN FITNESS
 
 Nome: ${feedback.name}
 E-mail: ${feedback.email}
-Idade: ${feedback.idade}
-Tempo como cliente: ${feedback['tempo-cliente']}
-Frequência: ${feedback.frequencia}
-Atividades: ${atividades.join(', ')}
-Avaliação Equipamentos: ${feedback['rating-equipamentos']}/5
-Avaliação Limpeza: ${feedback['rating-limpeza']}/5
-Avaliação Atendimento: ${feedback['rating-atendimento']}/5
-Avaliação Horários: ${feedback['rating-horarios']}/5
-Como conheceu: ${feedback['como-conheceu']}
-NPS: ${feedback.nps}/10
-Avaliação Geral: ${feedback.rating}/5
-${feedback.melhorias ? `Melhorias: ${feedback.melhorias}` : ''}
-${feedback.comments ? `Comentários: ${feedback.comments}` : ''}
+Tempo como cliente: ${feedback['tempo-treino'] || 'N/A'}
+Acompanhado por instrutor: ${feedback['acompanhado-instrutor'] || 'N/A'}
+${feedback['instrutor-nome'] ? `Nome do instrutor: ${feedback['instrutor-nome']}` : ''}
+${feedback['experiencia-instrutor'] ? `Experiência com instrutor: ${feedback['experiencia-instrutor']}` : ''}
+
+EXPERIÊNCIAS E AVALIAÇÕES:
+Experiência geral: ${feedback['experiencia-geral'] || 'N/A'}
+Razão da escolha: ${feedback['razao-escolha'] || 'N/A'}
+Estrutura física: ${feedback['estrutura-fisica'] || 'N/A'}
+Horários e aulas: ${feedback['horarios-aulas'] || 'N/A'}
+Ambiente: ${feedback['ambiente'] || 'N/A'}
+Atenção da equipe: ${feedback['atencao-equipe'] || 'N/A'}
+Se sente ouvido: ${feedback['ouvido'] || 'N/A'}
+
+PONTUAÇÕES:
+NPS (Indicação): ${feedback.indicacao || 'N/A'}/10
+Avaliação Geral (Satisfação): ${feedback.satisfacao || 'N/A'}/10
+
+${feedback['profissional-destaque'] ? `Profissional em destaque: ${feedback['profissional-destaque']}` : ''}
+${feedback.melhorias ? `Melhorias sugeridas: ${feedback.melhorias}` : ''}
+${feedback['novos-servicos'] ? `Novos serviços sugeridos: ${feedback['novos-servicos']}` : ''}
+
 Data: ${date}
             `.trim();
 

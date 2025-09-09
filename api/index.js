@@ -35,6 +35,12 @@ app.use(session({
 // Store para tokens de sessão simples (em memória para esta demonstração)
 let activeTokens = new Set();
 
+// Store para credenciais atualizadas (em memória)
+let currentCredentials = {
+    username: ADMIN_USERNAME,
+    password: ADMIN_PASSWORD
+};
+
 // Função para gerar token simples
 function generateSimpleToken() {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
@@ -129,7 +135,7 @@ app.post('/api/feedback', async (req, res) => {
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
 
-    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+    if (username === currentCredentials.username && password === currentCredentials.password) {
         // Autenticação tradicional para localhost
         req.session.authenticated = true;
 
@@ -194,6 +200,55 @@ app.delete('/api/feedback/:id', requireAuthToken, async (req, res) => {
     } catch (error) {
         console.error('❌ Erro ao excluir feedback:', error);
         res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+});
+
+// Rota para atualizar credenciais - PROTEGIDA
+app.post('/api/update-credentials', requireAuthToken, (req, res) => {
+    try {
+        const { newUsername, currentPassword, newPassword } = req.body;
+
+        // Verificar se todos os campos foram enviados
+        if (!newUsername || !currentPassword || !newPassword) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Todos os campos são obrigatórios' 
+            });
+        }
+
+        // Verificar senha atual
+        if (currentPassword !== currentCredentials.password) {
+            return res.status(401).json({ 
+                success: false, 
+                message: 'Senha atual incorreta' 
+            });
+        }
+
+        // Validar nova senha (mínimo 6 caracteres)
+        if (newPassword.length < 6) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'A nova senha deve ter pelo menos 6 caracteres' 
+            });
+        }
+
+        // Atualizar credenciais
+        currentCredentials.username = newUsername;
+        currentCredentials.password = newPassword;
+
+        console.log(`✅ Credenciais atualizadas - Usuário: ${newUsername}`);
+
+        res.json({ 
+            success: true, 
+            message: 'Credenciais atualizadas com sucesso' 
+        });
+
+    } catch (error) {
+        console.error('Erro ao atualizar credenciais:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Erro interno do servidor' 
+        });
     }
 });
 

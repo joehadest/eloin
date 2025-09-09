@@ -3,7 +3,7 @@ const { MongoClient } = require('mongodb');
 const cors = require('cors');
 const path = require('path');
 const session = require('express-session');
-require('dotenv').config({ path: path.join(__dirname, '../config/.env') });
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -28,23 +28,23 @@ app.use(session({
     }
 }));
 
-// Conexão com MongoDB
-const uri = process.env.MONGODB_URI || process.env.npm_config_mongodb_uri;
-const client = new MongoClient(uri);
+// Conexão com MongoDB (comentada para teste)
+// const uri = process.env.MONGODB_URI || process.env.npm_config_mongodb_uri;
+// const client = new MongoClient(uri);
 
-async function connectDB() {
-    try {
-        console.log('Tentando conectar ao MongoDB...');
-        console.log('URI:', uri ? 'Configurada' : 'Não encontrada');
-        await client.connect();
-        console.log('✅ Conectado ao MongoDB com sucesso!');
-    } catch (error) {
-        console.error('❌ Erro ao conectar ao MongoDB:', error.message);
-        console.error('Detalhes do erro:', error);
-    }
-}
+// async function connectDB() {
+//     try {
+//         console.log('Tentando conectar ao MongoDB...');
+//         console.log('URI:', uri ? 'Configurada' : 'Não encontrada');
+//         await client.connect();
+//         console.log('✅ Conectado ao MongoDB com sucesso!');
+//     } catch (error) {
+//         console.error('❌ Erro ao conectar ao MongoDB:', error.message);
+//         console.error('Detalhes do erro:', error);
+//     }
+// }
 
-connectDB();
+// connectDB();
 
 // Middleware de autenticação
 function requireAuth(req, res, next) {
@@ -61,8 +61,12 @@ app.get('/login', (req, res) => {
 
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
+    
+    // Usar credenciais atualizadas (globais) ou fallback para as originais
+    const currentUsername = global.ADMIN_USERNAME || process.env.ADMIN_USERNAME || ADMIN_USERNAME;
+    const currentPassword = global.ADMIN_PASSWORD || process.env.ADMIN_PASSWORD || ADMIN_PASSWORD;
 
-    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+    if (username === currentUsername && password === currentPassword) {
         req.session.authenticated = true;
         req.session.username = username;
         res.json({
@@ -88,6 +92,59 @@ app.post('/api/logout', (req, res) => {
     });
 });
 
+// Rota para atualizar credenciais - PROTEGIDA
+app.post('/api/update-credentials', requireAuth, (req, res) => {
+    try {
+        const { newUsername, currentPassword, newPassword } = req.body;
+
+        // Verificar se todos os campos foram enviados
+        if (!newUsername || !currentPassword || !newPassword) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Todos os campos são obrigatórios' 
+            });
+        }
+
+        // Verificar senha atual
+        if (currentPassword !== ADMIN_PASSWORD) {
+            return res.status(401).json({ 
+                success: false, 
+                message: 'Senha atual incorreta' 
+            });
+        }
+
+        // Validar nova senha (mínimo 6 caracteres)
+        if (newPassword.length < 6) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'A nova senha deve ter pelo menos 6 caracteres' 
+            });
+        }
+
+        // Atualizar credenciais na memória (em produção, salvar em arquivo de configuração ou banco)
+        process.env.ADMIN_USERNAME = newUsername;
+        process.env.ADMIN_PASSWORD = newPassword;
+        
+        // Também atualizar as variáveis globais
+        global.ADMIN_USERNAME = newUsername;
+        global.ADMIN_PASSWORD = newPassword;
+
+        console.log(`✅ Credenciais atualizadas - Usuário: ${newUsername}`);
+
+        res.json({ 
+            success: true, 
+            message: 'Credenciais atualizadas com sucesso' 
+        });
+
+    } catch (error) {
+        console.error('Erro ao atualizar credenciais:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Erro interno do servidor' 
+        });
+    }
+});
+
 // Rota para verificar autenticação
 app.get('/api/auth-status', (req, res) => {
     res.json({
@@ -97,7 +154,7 @@ app.get('/api/auth-status', (req, res) => {
 });
 app.post('/api/feedback', async (req, res) => {
     try {
-        const db = client.db('elohimformulario');
+        const db = client.db('elohim_fitness');
         const collection = db.collection('feedbacks');
 
         const feedbackData = {
@@ -117,7 +174,7 @@ app.post('/api/feedback', async (req, res) => {
 app.get('/api/feedbacks', requireAuth, async (req, res) => {
     try {
         console.log('Tentando conectar ao banco de dados...');
-        const db = client.db('elohimformulario');
+        const db = client.db('elohim_fitness');
         const collection = db.collection('feedbacks');
 
         console.log('Buscando feedbacks...');

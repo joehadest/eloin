@@ -1,13 +1,13 @@
 {
-  "name": "elohim-fitness-academia",
+  "name": "eloin-fitness-academia",
   "version": "1.0.0",
-  "description": "Sistema completo de feedback e gestão para Academia Elohim Fitness - Formulário público e painel administrativo",
-  "author": "Academia Elohim Fitness",
+  "description": "Sistema completo de feedback e gestão para Academia Eloin Fitness - Formulário público e painel administrativo",
+  "author": "Academia Eloin Fitness",
   "license": "ISC",
   "keywords": [
     "academia",
     "fitness",
-    "elohim",
+    "eloin",
     "feedback",
     "musculação",
     "cardio",
@@ -16,10 +16,9 @@
     "mongodb",
     "express"
   ],
-  "homepage": "https://academiaelohim.com",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/joehadest/eloin.git"
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
   },
   "dependencies": {
     "cors": "^2.8.5",

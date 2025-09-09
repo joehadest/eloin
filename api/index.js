@@ -32,7 +32,7 @@ app.use(session({
         httpOnly: true,
         domain: process.env.NODE_ENV === 'production' ? '.vercel.app' : undefined
     },
-    name: 'eloin-session' // Nome personalizado para evitar conflitos
+    name: 'elohim-session' // Nome personalizado para evitar conflitos
 }));
 
 // Store para tokens de sessão simples (em memória para esta demonstração)

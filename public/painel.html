@@ -6,16 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Elohim - Painel Administrativo</title>
     <meta name="description"
-        content="Painel administrativo da Academia Eloin Fitness - Gerencie feedbacks e avaliações dos clientes. Acesso restrito aos administradores.">
+        content="Painel administrativo da Academia Elohim - Gerencie feedbacks e avaliações dos clientes. Acesso restrito aos administradores.">
     <meta name="keywords"
-        content="academia, eloin, fitness, painel administrativo, feedbacks, avaliações, dashboard, administração">
-    <meta name="author" content="Academia Eloin Fitness">
+        content="academia, elohim, fitness, painel administrativo, feedbacks, avaliações, dashboard, administração">
+    <meta name="author" content="Academia Elohim">
     <meta name="robots" content="noindex, nofollow">
     <meta name="language" content="Portuguese">
-    <meta property="og:title" content="Eloin Fitness Academia - Painel Administrativo">
-    <meta property="og:description" content="Painel administrativo da Academia Eloin Fitness">
+    <meta property="og:title" content="Elohim - Painel Administrativo">
+    <meta property="og:description" content="Painel administrativo da Academia Elohim">
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="Academia Eloin Fitness">
+    <meta property="og:site_name" content="Academia Elohim">
     <link rel="icon" type="image/x-icon" href="/favicon_io/favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon_io/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon_io/favicon-16x16.png">
@@ -2225,7 +2225,7 @@
     <div class="painel-container">
         <header class="main-header">
             <div class="header-top">
-                <img src="logo topo/logo topo.png" alt="Academia Eloin Fitness" class="logo">
+                <img src="logo topo/logo topo.png" alt="Academia Elohim" class="logo">
                 <h1 class="header-title">Painel Administrativo</h1>
                 <p class="header-subtitle">Gerencie todos os feedbacks dos seus alunos e clientes</p>
             </div>
@@ -2297,9 +2297,9 @@
             </div>
         </div>
 
-        <div id="loading" class="loading">⏳ Carregando feedbacks da Academia Eloin Fitness...</div>
+        <div id="loading" class="loading">⏳ Carregando feedbacks da Academia Elohim...</div>
         <div id="error" class="error" style="display: none;">
-            <strong>❌ Ops! Algo deu errado na Academia Eloin Fitness</strong>
+            <strong>❌ Ops! Algo deu errado na Academia Elohim</strong>
             <p>Não foi possível carregar os feedbacks. Tente novamente mais tarde.</p>
         </div>
 
@@ -2318,7 +2318,7 @@
         <div class="modal-overlay" id="modal-overlay"></div>
         <div class="modal-content">
             <div class="modal-header">
-                <h2>📋 Todos os Feedbacks - Academia Eloin Fitness</h2>
+                <h2>📋 Todos os Feedbacks - Academia Elohim</h2>
                 <button class="modal-close" id="modal-close">
                     <span>✕</span>
                 </button>
@@ -2597,7 +2597,7 @@
                 document.getElementById('feedbacks-list').innerHTML = `
                     <div style="text-align: center; padding: 80px 20px; color: var(--text-secondary);">
                         <div style="font-size: 4em; margin-bottom: 20px;">📭</div>
-                        <h3 style="color: var(--primary-color); margin-bottom: 10px; font-weight: 300;">Nenhum feedback encontrado na Academia Eloin</h3>
+                        <h3 style="color: var(--primary-color); margin-bottom: 10px; font-weight: 300;">Nenhum feedback encontrado na Academia Elohim</h3>
                         <p style="font-size: 1.1em; opacity: 0.8;">Tente ajustar os filtros ou aguarde novos feedbacks dos nossos alunos!</p>
                     </div>
                 `;
@@ -2796,7 +2796,7 @@
             const date = new Date(feedback.timestamp).toLocaleString('pt-BR');
 
             const text = `
-FEEDBACK - ACADEMIA ELOIN FITNESS
+FEEDBACK - ACADEMIA ELOHIM
 ========================
 
 Nome: ${feedback.name}
@@ -2830,13 +2830,13 @@ Data: ${date}
                 // Mostrar feedback visual
                 const btn = document.querySelector(`.accordion-item[data-index="${index}"] .action-btn.primary`);
                 const originalText = btn.innerHTML;
-                btn.innerHTML = '✅ Copiado - Eloin!';
+                btn.innerHTML = '✅ Copiado - Elohim!';
                 setTimeout(() => {
                     btn.innerHTML = originalText;
                 }, 2000);
             }).catch(err => {
                 console.error('Erro ao copiar:', err);
-                alert('Erro ao copiar feedback da Academia Eloin Fitness para a área de transferência');
+                alert('Erro ao copiar feedback da Academia Elohim para a área de transferência');
             });
         }
 
@@ -2853,7 +2853,7 @@ Data: ${date}
                 <!DOCTYPE html>
                 <html>
                 <head>
-                    <title>Feedback - ${feedback.name} - Academia Eloin Fitness</title>
+                    <title>Feedback - ${feedback.name} - Academia Elohim</title>
                     <style>
                         @media print {
                             body { margin: 0; }
@@ -2999,7 +2999,7 @@ Data: ${date}
                 </head>
                 <body>
                     <div class="header">
-                        <h1>🏋️ Academia Eloin Fitness</h1>
+                        <h1>🏋️ Academia Elohim</h1>
                         <p>Feedback de ${feedback.name} - ${date}</p>
                     </div>
 
@@ -3105,11 +3105,11 @@ Data: ${date}
                 if (response.ok) {
                     window.location.href = '/login';
                 } else {
-                    alert('Erro ao fazer logout da Academia Eloin Fitness');
+                    alert('Erro ao fazer logout da Academia Elohim');
                 }
             } catch (error) {
                 console.error('Erro no logout:', error);
-                alert('Erro ao fazer logout da Academia Eloin Fitness');
+                alert('Erro ao fazer logout da Academia Elohim');
             }
         });
 

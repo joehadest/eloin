@@ -1,10 +1,10 @@
-# 🏋️ Academia Eloin Fitness
+# 🏋️ Academia Elohim
 
-Sistema completo de feedback e gestão para a Academia Eloin Fitness, oferecendo musculação, cardio, crossfit e muito mais.
+Sistema completo de feedback e gestão para a Academia Elohim, oferecendo musculação, cardio, crossfit e muito mais.
 
 ## 📋 Sobre
 
-A Academia Eloin Fitness é uma academia completa que oferece diversos serviços fitness para seus alunos. Este sistema foi desenvolvido para coletar feedback dos clientes e gerenciar essas informações através de um painel administrativo seguro.
+A Academia Elohim é uma academia completa que oferece diversos serviços fitness para seus alunos. Este sistema foi desenvolvido para coletar feedback dos clientes e gerenciar essas informações através de um painel administrativo seguro.
 
 ## ✨ Funcionalidades
 
@@ -41,8 +41,8 @@ A Academia Eloin Fitness é uma academia completa que oferece diversos serviços
 
 1. Clone o repositório:
 ```bash
-git clone https://github.com/joehadest/eloin.git
-cd eloin
+git clone https://github.com/joehadest/elohim.git
+cd elohim
 ```
 
 2. Instale as dependências:
@@ -68,7 +68,7 @@ npm start
 ## 📊 Estrutura do Projeto
 
 ```
-eloin/
+elohim/
 ├── config/
 │   └── .env                 # Variáveis de ambiente
 ├── public/
@@ -102,9 +102,9 @@ Contribuições são bem-vindas! Sinta-se à vontade para abrir issues e pull re
 
 ## 📞 Contato
 
-**Academia Eloin Fitness**
-- Website: [academiaeloin.com](https://academiaeloin.com)
-- Email: contato@academiaeloin.com
+**Academia Elohim**
+- Website: [academiaelohim.com](https://academiaelohim.com)
+- Email: contato@academiaelohim.com
 
 ---
 
@@ -119,7 +119,7 @@ Contribuições são bem-vindas! Sinta-se à vontade para abrir issues e pull re
 ## Estrutura do Projeto
 
 ```
-eloin/
+elohim/
 ├── config/
 │   └── .env                    # Variáveis de ambiente (MongoDB URI)
 ├── public/
@@ -161,7 +161,7 @@ eloin/
 O sistema está configurado para usar MongoDB Atlas. A string de conexão está no arquivo `.env`:
 
 ```
-MONGODB_URI=mongodb+srv://webpulse:silva225566@eloinformulario.vcympy9.mongodb.net/?retryWrites=true&w=majority&appName=eloinformulario
+MONGODB_URI=mongodb+srv://webpulse:silva225566@elohimformulario.vcympy9.mongodb.net/?retryWrites=true&w=majority&appName=elohimformulario
 ```
 
 ## API Endpoints

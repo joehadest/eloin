@@ -383,6 +383,44 @@ h2 {
     max-width: 450px;
 }
 
+/* Container para input de senha com botão de visualizar */
+.password-input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-input-container input {
+    padding-right: 50px !important;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 1.2em;
+    cursor: pointer;
+    color: #4a4a4a;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+    z-index: 10;
+    padding: 5px;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toggle-password:hover {
+    opacity: 1;
+    background: rgba(255, 215, 0, 0.1);
+    color: var(--primary-color);
+    transform: scale(1.1);
+}
+
 /* Modal de Agradecimento - Design Moderno */
 .modal-overlay {
     position: fixed;
@@ -1949,7 +1987,7 @@ button[type="submit"]:active {
     }
 }
 
-/* Padronização da cor dos textos do formulário - v17 */
+/* Padronização da cor dos textos do formulário - v19 */
 .form-group label,
 .form-group p,
 .question-text,
@@ -1979,5 +2017,19 @@ header p,
 .container label,
 .container p:not(.highlight),
 .form-text {
+    color: #4a4a4a !important;
+}
+
+/* Padronização da cor dos textos dos feedbacks no painel - v18 */
+.feedback-field span,
+.accordion-field span,
+.accordion-body span,
+.painel-container .accordion-field span,
+.painel-container .feedback-field span,
+.painel-container .feedback-field label,
+.painel-container .meta-item,
+.painel-container .meta-item strong,
+.accordion-body .feedback-field label,
+.accordion-content .feedback-field label {
     color: #4a4a4a !important;
 }

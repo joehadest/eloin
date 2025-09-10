@@ -692,7 +692,7 @@
         }
 
         .meta-item strong {
-            color: var(--primary-color);
+            color: #4a4a4a !important;
         }
 
         .expand-all-btn {
@@ -1767,7 +1767,7 @@
 
         .feedback-field label {
             font-weight: 600;
-            color: var(--primary-color);
+            color: #4a4a4a !important;
             font-size: 0.95em;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -2610,17 +2610,23 @@
 
                 return `
                     <div class="accordion-item" data-index="${index}">
-                        <button class="accordion-header" onclick="toggleAccordion(${index})">
-                            <div>
-                                <div class="accordion-title">${feedback.name}</div>
-                                <div class="accordion-meta">
-                                    <span class="meta-item">📧 <strong>${feedback.email}</strong></span>
-                                    <span class="meta-item">⭐ ${feedback.satisfacao || 'N/A'}/10</span>
-                                    <span class="meta-item">📊 NPS: ${feedback.indicacao || 'N/A'}/10</span>
-                                    <span class="meta-item">📅 ${date}</span>
+                        <div class="accordion-header-row">
+                            <button class="accordion-header" onclick="toggleAccordion(${index})">
+                                <div>
+                                    <div class="accordion-title">${feedback.name}</div>
+                                    <div class="accordion-meta">
+                                        <span class="meta-item">📧 <strong>${feedback.email}</strong></span>
+                                        <span class="meta-item">⭐ ${feedback.satisfacao || 'N/A'}/10</span>
+                                        <span class="meta-item">📊 NPS: ${feedback.indicacao || 'N/A'}/10</span>
+                                        <span class="meta-item">📅 ${date}</span>
+                                    </div>
                                 </div>
+                            </button>
+                            <div class="accordion-actions outside">
+                                <button class="action-btn primary copy" onclick="copyFeedback(${index})" aria-label="Copiar feedback" title="Copiar feedback para a área de transferência">📋 Copiar</button>
+                                <button class="action-btn secondary print" onclick="printFeedback(${index})" aria-label="Imprimir feedback" title="Imprimir feedback">🖨️ Imprimir</button>
                             </div>
-                        </button>
+                        </div>
                         <div class="accordion-content">
                             <div class="accordion-body">
                                 <div class="feedback-content">
@@ -2708,10 +2714,6 @@
                                             <span>${feedback.comments}</span>
                                         </div>
                                     ` : ''}
-                                </div>
-                                <div class="accordion-actions">
-                                    <button class="action-btn primary" onclick="copyFeedback(${index})">📋 Copiar</button>
-                                    <button class="action-btn secondary" onclick="printFeedback(${index})">🖨️ Imprimir</button>
                                 </div>
                             </div>
                         </div>
@@ -3141,16 +3143,26 @@ Data: ${date}
                     <label for="current-password"
                         style="display: block; margin-bottom: 8px; color: #333; font-weight: 600;">🔓 Senha
                         Atual:</label>
-                    <input type="password" id="current-password" required
-                        style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em; transition: border-color 0.3s;">
+                    <div class="password-input-container">
+                        <input type="password" id="current-password" required
+                            style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em; transition: border-color 0.3s; padding-right: 50px;">
+                        <button type="button" class="toggle-password" onclick="togglePassword('current-password', this)">
+                            👁️
+                        </button>
+                    </div>
                 </div>
 
                 <div style="margin-bottom: 25px;">
                     <label for="new-password"
                         style="display: block; margin-bottom: 8px; color: #333; font-weight: 600;">🔒 Nova
                         Senha:</label>
-                    <input type="password" id="new-password" required
-                        style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em; transition: border-color 0.3s;">
+                    <div class="password-input-container">
+                        <input type="password" id="new-password" required
+                            style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em; transition: border-color 0.3s; padding-right: 50px;">
+                        <button type="button" class="toggle-password" onclick="togglePassword('new-password', this)">
+                            👁️
+                        </button>
+                    </div>
                 </div>
 
                 <div style="display: flex; gap: 15px; justify-content: flex-end;">
@@ -3331,7 +3343,262 @@ Data: ${date}
                 console.error('Botão ou modal de configurações não encontrado');
             }
         }, 100);
+
+        // Função para alternar visibilidade da senha
+        function togglePassword(inputId, button) {
+            const input = document.getElementById(inputId);
+            const isPassword = input.type === 'password';
+            
+            input.type = isPassword ? 'text' : 'password';
+            button.textContent = isPassword ? '🙈' : '👁️';
+            button.title = isPassword ? 'Ocultar senha' : 'Mostrar senha';
+        }
     </script>
+
+    <style>
+        /* ===============================
+           Gaveta de feedbacks – Visual v20
+           =============================== */
+        .accordion-item.active {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+            border-color: rgba(255, 215, 0, 0.25);
+        }
+
+        .accordion-item.active .accordion-header {
+            background: linear-gradient(135deg, #ffffff, #fafafa);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .accordion-content {
+            background: linear-gradient(135deg, #ffffff, #fbfbfb);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+        }
+
+        .accordion-body {
+            padding: 24px 24px 18px !important;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px 20px;
+        }
+
+        .feedback-content {
+            gap: 16px 20px !important;
+        }
+
+        .feedback-field {
+            background: rgba(255, 255, 255, 0.96) !important;
+            border: 1px solid rgba(0, 0, 0, 0.06) !important;
+            border-left: 4px solid rgba(255, 215, 0, 0.35) !important;
+            border-radius: 14px !important;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06) !important;
+            transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+        }
+
+        .feedback-field:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        .feedback-field label {
+            color: #4a4a4a !important;
+            font-size: 0.85em !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.4px !important;
+            margin-bottom: 6px !important;
+            text-transform: uppercase !important;
+        }
+
+        .feedback-field span {
+            color: #2c2c2c !important;
+            font-weight: 600 !important;
+        }
+
+        .accordion-actions {
+            background: rgba(0, 0, 0, 0.02);
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
+            padding: 16px !important;
+            border-radius: 0 0 14px 14px;
+        }
+
+        /* Header row com botões fora da gaveta */
+        .accordion-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 0 0 8px 0;
+        }
+
+        .accordion-header-row .accordion-header {
+            flex: 1 1 auto;
+        }
+
+        .accordion-actions.outside {
+            background: transparent;
+            border: none;
+            padding: 0 !important;
+            border-radius: 0;
+            display: flex;
+            gap: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .accordion-header-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            .accordion-actions.outside {
+                width: 100%;
+            }
+            .accordion-actions.outside .action-btn {
+                width: 100%;
+            }
+        }
+
+        /* Botões de ação aprimorados */
+        .accordion-actions .action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            line-height: 1.1;
+            height: auto;
+            min-height: 0;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+        }
+
+        .accordion-actions .action-btn.primary {
+            background: linear-gradient(135deg, #ffffff, #f8f9fb);
+            color: #2c2c2c !important;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .accordion-actions .action-btn.secondary {
+            background: linear-gradient(135deg, #ffd700, #e6c200);
+            color: #2c2c2c !important;
+            border: 1px solid rgba(255, 215, 0, 0.5);
+        }
+
+        .accordion-actions .action-btn.copy {
+            background: linear-gradient(135deg, #ffffff, #f7f7f9);
+        }
+
+        .accordion-actions .action-btn.print {
+            background: linear-gradient(135deg, #ffe680, #ffd34d);
+        }
+
+        .accordion-actions .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .accordion-actions .action-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        .accordion-actions .action-btn:focus {
+            outline: 3px solid rgba(255, 215, 0, 0.45);
+            outline-offset: 2px;
+            box-shadow: 0 0 0 6px rgba(255, 215, 0, 0.2);
+        }
+
+        /* Ícones alinhados e estáveis */
+        .accordion-actions .action-btn::first-letter {
+            font-size: 1.1em;
+        }
+
+        @media (max-width: 768px) {
+            .accordion-actions .action-btn {
+                width: 100%;
+                justify-content: center;
+                padding: 10px 14px;
+                min-height: 40px; /* override para evitar altura exagerada no mobile */
+            }
+        }
+
+        /* Mobile ajustes */
+        @media (max-width: 768px) {
+            .accordion-body {
+                padding: 18px 14px 14px !important;
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+
+            .feedback-field {
+                border-radius: 12px !important;
+            }
+        }
+
+        /* ===== KPIs (Stat Cards) – visual aprimorado ===== */
+        .stats .stat-card {
+            background: radial-gradient(1000px 300px at -10% -10%, rgba(255, 215, 0, 0.07), transparent 40%),
+                        radial-gradient(800px 250px at 110% 0%, rgba(0, 0, 0, 0.04), transparent 35%),
+                        var(--card-bg);
+            border: 1px solid rgba(255, 215, 0, 0.18);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.6);
+            padding: 26px 22px;
+        }
+
+        .stats .stat-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            margin-bottom: 12px;
+            font-size: 1.6rem;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6);
+        }
+
+        .stats .stat-number {
+            font-size: 2.6rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.3);
+        }
+
+        .stats .stat-label {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(255, 215, 0, 0.12);
+            color: #4a4a4a !important;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        /* Cores por cartão */
+        .stats .stat-icon { background: linear-gradient(135deg, #fff6bf, #ffe680); color: #7a6400; }
+        .stats .stat-number { background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); background-clip: text; -webkit-background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
+
+        /* Forçar as listras superiores de todos os cards para amarelo */
+        .stats .stat-card:nth-child(1)::before,
+        .stats .stat-card:nth-child(2)::before,
+        .stats .stat-card:nth-child(3)::before,
+        .stats .stat-card:nth-child(4)::before {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .stats .stat-card:hover .stat-number { filter: brightness(1.05); }
+        .stats .stat-card:hover .stat-icon { transform: translateY(-2px); transition: transform 0.2s ease; }
+
+        @media (max-width: 768px) {
+            .stats .stat-number { font-size: 2.2rem; }
+            .stats .stat-icon { width: 52px; height: 52px; font-size: 1.5rem; }
+        }
+    </style>
 </body>
 
 </html>

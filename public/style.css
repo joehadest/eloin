@@ -138,14 +138,33 @@ body {
     font-weight: 300;
 }
 
+/* Títulos de seção com fundo sutil */
 h2 {
     font-size: 1.8em;
-    font-weight: 600;
-    color: var(--primary-color);
-    margin: 30px 0 20px 0;
+    font-weight: 700;
+    color: #4a4a4a !important;
+    margin: 28px 0 18px 0;
+    text-align: left;
+    border: none;
+}
+
+.section-title {
+    display: block;
+    width: 100%;
+    background: var(--primary-color); /* fundo amarelo */
+    color: #4a4a4a !important; /* texto cinza escuro */
+    border-radius: 12px;
+    padding: 14px 16px;
+    border: 1px solid rgba(0,0,0,0.12);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     text-align: center;
-    border-bottom: 2px solid var(--border-color);
-    padding-bottom: 10px;
+}
+
+@media screen and (max-width: 768px) {
+    .section-title {
+        padding: 12px 14px;
+        border-radius: 10px;
+    }
 }
 
 .form-group {

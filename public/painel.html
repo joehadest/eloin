@@ -23,6 +23,60 @@
     <link rel="manifest" href="/favicon_io/site.webmanifest">
     <link rel="stylesheet" href="style.css">
     <style>
+        /* ===== FULLSCREEN LOADING OVERLAY ===== */
+        #loading-screen {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #ffffff 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100000;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        #loading-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        #loading-screen .loader-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 18px;
+            padding: 24px 28px;
+            border-radius: 16px;
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            border: 1px solid rgba(255, 215, 0, 0.25);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+        }
+
+        #loading-screen .loader-logo {
+            width: 160px;
+            max-width: 60vw;
+            height: auto;
+            filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.08));
+        }
+
+        #loading-screen .loader-spinner {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 215, 0, 0.25);
+            border-top-color: #ffd700;
+            animation: spin 1s linear infinite;
+        }
+
+        #loading-screen .loader-text {
+            color: #666;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
         :root {
             --primary-color: #ffd700;
             --secondary-color: #e6c200;
@@ -2222,7 +2276,16 @@
 </head>
 
 <body>
-    <div class="painel-container">
+    <!-- Fullscreen loading overlay -->
+    <div id="loading-screen" role="status" aria-live="polite" aria-label="Carregando painel">
+        <div class="loader-content">
+            <img src="logo topo/logo topo.png" alt="Academia Elohim" class="loader-logo">
+            <div class="loader-spinner" aria-hidden="true"></div>
+            <p class="loader-text">Carregando o painel da Academia Elohim…</p>
+        </div>
+    </div>
+
+    <div class="painel-container" style="display: none;">
         <header class="main-header">
             <div class="header-top">
                 <img src="logo topo/logo topo.png" alt="Academia Elohim" class="logo">
@@ -2377,6 +2440,21 @@
 
     <script>
         let allFeedbacks = [];
+
+        // ===== LOADING OVERLAY CONTROL =====
+        function hideLoadingScreen() {
+            const overlay = document.getElementById('loading-screen');
+            const container = document.querySelector('.painel-container');
+            if (container && container.style.display !== 'block') {
+                container.style.display = 'block';
+            }
+            if (overlay && !overlay.classList.contains('hidden')) {
+                overlay.classList.add('hidden');
+                setTimeout(() => {
+                    if (overlay) overlay.style.display = 'none';
+                }, 350);
+            }
+        }
 
         // ===== MODAL FUNCTIONS =====
         // Sistema de gerenciamento de scroll para múltiplos modais
@@ -2562,6 +2640,8 @@
                 displayStats(allFeedbacks);
             } catch (error) {
                 console.error('Erro ao carregar feedbacks:', error);
+                // Garantir que o overlay saia mesmo em erro
+                hideLoadingScreen();
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('error').style.display = 'block';
 
@@ -2619,6 +2699,8 @@
         }
 
         function displayFeedbacks(feedbacks) {
+            // Remover overlay de carregamento e mostrar conteúdo
+            hideLoadingScreen();
             document.getElementById('loading').style.display = 'none';
 
             if (feedbacks.length === 0) {

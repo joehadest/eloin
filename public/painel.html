@@ -2472,7 +2472,7 @@
         // Função helper para incluir token de autenticação
         function getAuthHeaders() {
             const token = localStorage.getItem('token');
-            return token ? { 'x-auth-token': token } : {};
+            return token ? { 'Authorization': `Bearer ${token}` } : {};
         }
 
         async function checkAuthAndLoadFeedbacks() {
@@ -2516,9 +2516,7 @@
 
         async function loadFeedbacks() {
             try {
-                const response = await fetch('/api/feedbacks', {
-                    headers: getAuthHeaders()
-                });
+                const response = await fetch('/api/feedbacks?limit=200', { headers: getAuthHeaders() });
                 if (!response.ok) {
                     if (response.status === 401) {
                         // Não autenticado, limpar dados e redirecionar para login
@@ -2615,7 +2613,7 @@
                                 <div>
                                     <div class="accordion-title">${feedback.name}</div>
                                     <div class="accordion-meta">
-                                        <span class="meta-item">📧 <strong>${feedback.email}</strong></span>
+                                        <span class="meta-item">📱 <strong>${feedback.whatsapp || '-'}</strong></span>
                                         <span class="meta-item">⭐ ${feedback.satisfacao || 'N/A'}/10</span>
                                         <span class="meta-item">📊 NPS: ${feedback.indicacao || 'N/A'}/10</span>
                                         <span class="meta-item">📅 ${date}</span>
@@ -2631,8 +2629,8 @@
                             <div class="accordion-body">
                                 <div class="feedback-content">
                                     <div class="feedback-field">
-                                        <label>📧 E-mail:</label>
-                                        <span>${feedback.email}</span>
+                                        <label>📱 WhatsApp:</label>
+                                        <span>${feedback.whatsapp || '-'}</span>
                                     </div>
                                     <div class="feedback-field">
                                         <label>⏰ Tempo como cliente:</label>
@@ -2802,7 +2800,7 @@ FEEDBACK - ACADEMIA ELOHIM
 ========================
 
 Nome: ${feedback.name}
-E-mail: ${feedback.email}
+WhatsApp: ${feedback.whatsapp || '-'}
 Tempo como cliente: ${feedback['tempo-treino'] || 'N/A'}
 Acompanhado por instrutor: ${feedback['acompanhado-instrutor'] || 'N/A'}
 ${feedback['instrutor-nome'] ? `Nome do instrutor: ${feedback['instrutor-nome']}` : ''}
@@ -3012,8 +3010,8 @@ Data: ${date}
                         </div>
 
                         <div class="field">
-                            <label for="email">📧 E-mail:</label>
-                            <span>${feedback.email}</span>
+                            <label for="whatsapp">📱 WhatsApp:</label>
+                            <span>${feedback.whatsapp || '-'}</span>
                         </div>
 
                         <div class="field">
@@ -3146,7 +3144,8 @@ Data: ${date}
                     <div class="password-input-container">
                         <input type="password" id="current-password" required
                             style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em; transition: border-color 0.3s; padding-right: 50px;">
-                        <button type="button" class="toggle-password" onclick="togglePassword('current-password', this)">
+                        <button type="button" class="toggle-password"
+                            onclick="togglePassword('current-password', this)">
                             👁️
                         </button>
                     </div>
@@ -3348,7 +3347,7 @@ Data: ${date}
         function togglePassword(inputId, button) {
             const input = document.getElementById(inputId);
             const isPassword = input.type === 'password';
-            
+
             input.type = isPassword ? 'text' : 'password';
             button.textContent = isPassword ? '🙈' : '👁️';
             button.title = isPassword ? 'Ocultar senha' : 'Mostrar senha';
@@ -3449,9 +3448,11 @@ Data: ${date}
                 align-items: stretch;
                 gap: 10px;
             }
+
             .accordion-actions.outside {
                 width: 100%;
             }
+
             .accordion-actions.outside .action-btn {
                 width: 100%;
             }
@@ -3522,7 +3523,8 @@ Data: ${date}
                 width: 100%;
                 justify-content: center;
                 padding: 10px 14px;
-                min-height: 40px; /* override para evitar altura exagerada no mobile */
+                min-height: 40px;
+                /* override para evitar altura exagerada no mobile */
             }
         }
 
@@ -3542,10 +3544,10 @@ Data: ${date}
         /* ===== KPIs (Stat Cards) – visual aprimorado ===== */
         .stats .stat-card {
             background: radial-gradient(1000px 300px at -10% -10%, rgba(255, 215, 0, 0.07), transparent 40%),
-                        radial-gradient(800px 250px at 110% 0%, rgba(0, 0, 0, 0.04), transparent 35%),
-                        var(--card-bg);
+                radial-gradient(800px 250px at 110% 0%, rgba(0, 0, 0, 0.04), transparent 35%),
+                var(--card-bg);
             border: 1px solid rgba(255, 215, 0, 0.18);
-            box-shadow: 0 10px 24px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.6);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.6);
             padding: 26px 22px;
         }
 
@@ -3558,7 +3560,7 @@ Data: ${date}
             border-radius: 50%;
             margin-bottom: 12px;
             font-size: 1.6rem;
-            box-shadow: 0 8px 18px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6);
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6);
         }
 
         .stats .stat-number {
@@ -3566,7 +3568,7 @@ Data: ${date}
             font-weight: 800;
             letter-spacing: -0.5px;
             margin-bottom: 8px;
-            text-shadow: 0 1px 0 rgba(255,255,255,0.3);
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
         .stats .stat-label {
@@ -3580,8 +3582,18 @@ Data: ${date}
         }
 
         /* Cores por cartão */
-        .stats .stat-icon { background: linear-gradient(135deg, #fff6bf, #ffe680); color: #7a6400; }
-        .stats .stat-number { background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); background-clip: text; -webkit-background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
+        .stats .stat-icon {
+            background: linear-gradient(135deg, #fff6bf, #ffe680);
+            color: #7a6400;
+        }
+
+        .stats .stat-number {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+        }
 
         /* Forçar as listras superiores de todos os cards para amarelo */
         .stats .stat-card:nth-child(1)::before,
@@ -3591,12 +3603,25 @@ Data: ${date}
             background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
         }
 
-        .stats .stat-card:hover .stat-number { filter: brightness(1.05); }
-        .stats .stat-card:hover .stat-icon { transform: translateY(-2px); transition: transform 0.2s ease; }
+        .stats .stat-card:hover .stat-number {
+            filter: brightness(1.05);
+        }
+
+        .stats .stat-card:hover .stat-icon {
+            transform: translateY(-2px);
+            transition: transform 0.2s ease;
+        }
 
         @media (max-width: 768px) {
-            .stats .stat-number { font-size: 2.2rem; }
-            .stats .stat-icon { width: 52px; height: 52px; font-size: 1.5rem; }
+            .stats .stat-number {
+                font-size: 2.2rem;
+            }
+
+            .stats .stat-icon {
+                width: 52px;
+                height: 52px;
+                font-size: 1.5rem;
+            }
         }
     </style>
 </body>

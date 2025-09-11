@@ -4,6 +4,7 @@ const cors = require('cors');
 const path = require('path');
 const session = require('express-session');
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
+const jwt = require('jsonwebtoken');
 
 const app = express();
 
@@ -12,6 +13,7 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://webpulse:silva2255
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'elohim2024';
 const SESSION_SECRET = process.env.SESSION_SECRET || 'elohim-secret-key-2024';
+const JWT_SECRET = process.env.JWT_SECRET || 'elohim-jwt-secret-2024';
 
 // Middleware
 app.use(cors()); // Simplificado para debug
@@ -26,17 +28,15 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: process.env.NODE_ENV === 'production', // true apenas em produção
+        secure: process.env.NODE_ENV === 'production',
         maxAge: 24 * 60 * 60 * 1000,
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         httpOnly: true,
-        domain: process.env.NODE_ENV === 'production' ? '.vercel.app' : undefined
+        // Evitar definir domain para não invalidar cookies em hosts customizados
+        // domain: undefined
     },
-    name: 'elohim-session' // Nome personalizado para evitar conflitos
+    name: 'elohim-session'
 }));
-
-// Store para tokens de sessão simples (em memória para esta demonstração)
-let activeTokens = new Set();
 
 // Store para credenciais atualizadas (inicializado com padrões)
 let currentCredentials = {
@@ -98,22 +98,27 @@ async function saveCredentialsToDatabase(username, password) {
     }
 }
 
-// Função para gerar token simples
-function generateSimpleToken() {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2);
-}
-
 // Middleware de autenticação alternativo baseado em token
 function requireAuthToken(req, res, next) {
-    const token = req.headers['x-auth-token'];
+    try {
+        const authHeader = req.headers['authorization'];
+        const headerToken = authHeader && authHeader.startsWith('Bearer ')
+            ? authHeader.substring(7)
+            : (req.headers['x-auth-token'] || null);
 
-    if (token && activeTokens.has(token)) {
-        next();
-    } else if (req.session && req.session.authenticated) {
-        // Fallback para sessão tradicional (localhost)
-        next();
-    } else {
-        res.status(401).json({ error: 'Authentication required' });
+        if (headerToken) {
+            const decoded = jwt.verify(headerToken, JWT_SECRET);
+            req.user = decoded;
+            return next();
+        }
+
+        if (req.session && req.session.authenticated) {
+            return next();
+        }
+
+        return res.status(401).json({ error: 'Authentication required' });
+    } catch (err) {
+        return res.status(401).json({ error: 'Invalid or expired token' });
     }
 }
 
@@ -138,6 +143,13 @@ async function connectToDatabase() {
             await client.connect();
             db = client.db('elohim_fitness');
             console.log('✅ Conectado ao MongoDB Atlas');
+
+            // Criar índice para timestamp se ainda não existir
+            try {
+                await db.collection('feedbacks').createIndex({ timestamp: -1 });
+            } catch (e) {
+                console.warn('Falha ao criar índice em feedbacks.timestamp:', e.message);
+            }
         }
         return db;
     } catch (error) {
@@ -192,31 +204,31 @@ app.post('/api/init-credentials', (req, res) => {
 });
 app.get('/api/auth/status', (req, res) => {
     try {
-        const token = req.headers['x-auth-token'];
+        const authHeader = req.headers['authorization'];
+        const headerToken = authHeader && authHeader.startsWith('Bearer ')
+            ? authHeader.substring(7)
+            : (req.headers['x-auth-token'] || null);
         const sessionAuth = !!(req.session && req.session.authenticated);
-        const tokenAuth = token && activeTokens.has(token);
 
-        console.log('Verificando status de autenticação:', {
-            sessionID: req.sessionID,
-            sessionAuth,
-            tokenAuth,
-            token: token ? 'presente' : 'ausente',
-            activeTokensCount: activeTokens.size,
-            sessionUsername: req.session ? req.session.username : 'none'
-        });
+        let tokenAuth = false;
+        let username = req.session ? req.session.username : null;
+        if (headerToken) {
+            try {
+                const decoded = jwt.verify(headerToken, JWT_SECRET);
+                tokenAuth = true;
+                username = decoded.username || username;
+            } catch (e) {
+                tokenAuth = false;
+            }
+        }
 
         res.json({
             authenticated: sessionAuth || tokenAuth,
-            sessionID: req.sessionID,
             method: tokenAuth ? 'token' : sessionAuth ? 'session' : 'none',
-            username: req.session ? req.session.username : null
+            username
         });
     } catch (error) {
-        console.error('Erro ao verificar status de autenticação:', error);
-        res.status(500).json({
-            authenticated: false,
-            error: 'Erro interno do servidor'
-        });
+        res.status(500).json({ authenticated: false, error: 'Erro interno do servidor' });
     }
 });// Rota para enviar feedback
 app.post('/api/feedback', async (req, res) => {
@@ -264,37 +276,19 @@ app.post('/api/login', async (req, res) => {
         }
 
         if (username === currentCredentials.username && password === currentCredentials.password) {
-            // Autenticação tradicional para localhost
             req.session.authenticated = true;
             req.session.username = username;
-
-            // Gerar token para Vercel
-            const token = generateSimpleToken();
-            activeTokens.add(token);
-
-            // Limpar tokens antigos após 24 horas
-            setTimeout(() => {
-                activeTokens.delete(token);
-            }, 24 * 60 * 60 * 1000);
-
-            console.log('✅ Login bem-sucedido para usuário:', username);
-
-            res.json({
-                success: true,
-                message: 'Login realizado com sucesso!',
-                token: token,
-                username: username
-            });
-        } else {
-            console.log('❌ Credenciais inválidas para usuário:', username);
-            console.log('Esperado:', { username: currentCredentials.username });
-            console.log('Recebido:', { username, password: password ? '[HIDDEN]' : '[EMPTY]' });
-
-            res.status(401).json({
-                success: false,
-                error: 'Credenciais inválidas'
-            });
+            const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: '24h' });
+            return res.json({ success: true, message: 'Login realizado com sucesso!', token, username });
         }
+        console.log('❌ Credenciais inválidas para usuário:', username);
+        console.log('Esperado:', { username: currentCredentials.username });
+        console.log('Recebido:', { username, password: password ? '[HIDDEN]' : '[EMPTY]' });
+
+        res.status(401).json({
+            success: false,
+            error: 'Credenciais inválidas'
+        });
     } catch (error) {
         console.error('❌ Erro no login:', error);
         res.status(500).json({
@@ -306,14 +300,9 @@ app.post('/api/login', async (req, res) => {
 
 // Rota para logout
 app.post('/api/logout', (req, res) => {
-    const token = req.headers['x-auth-token'];
-
-    if (token) {
-        activeTokens.delete(token);
-    }
-
-    req.session.destroy();
-    res.json({ success: true, message: 'Logout realizado com sucesso!' });
+    req.session.destroy(() => {
+        res.json({ success: true, message: 'Logout realizado com sucesso!' });
+    });
 });
 
 // Rota de debug para verificar credenciais (remover em produção)
@@ -342,10 +331,10 @@ app.get('/api/feedbacks', requireAuthToken, async (req, res) => {
     try {
         const database = await connectToDatabase();
         const feedbacks = database.collection('feedbacks');
-        const allFeedbacks = await feedbacks.find({}).sort({ timestamp: -1 }).toArray();
+        const limit = Math.max(1, Math.min(500, parseInt(req.query.limit || '100', 10)));
+        const allFeedbacks = await feedbacks.find({}).sort({ timestamp: -1 }).limit(limit).toArray();
         res.json(allFeedbacks);
     } catch (error) {
-        console.error('❌ Erro ao buscar feedbacks:', error);
         res.status(500).json({ error: 'Erro interno do servidor' });
     }
 });

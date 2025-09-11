@@ -157,6 +157,48 @@
         .login-container {
             animation: fadeInUp 0.8s ease-out;
         }
+
+        /* Olhinho de ver senha dentro do input */
+        .password-input-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-input-container input {
+            width: 100%;
+            padding-right: 44px;
+            /* espaço para o ícone */
+        }
+
+        .password-input-container .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            padding: 6px;
+            line-height: 1;
+            cursor: pointer;
+            font-size: 1.1rem;
+            color: #9aa0a6;
+            transition: color .2s ease, transform .1s ease;
+        }
+
+        .password-input-container .toggle-password:hover {
+            color: #ffd700;
+        }
+
+        .password-input-container .toggle-password:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+
+        .password-input-container .toggle-password:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.35);
+            border-radius: 8px;
+        }
     </style>
 </head>
 
@@ -172,8 +214,14 @@
                 <label for="password">Senha:</label>
                 <div class="password-input-container">
                     <input type="password" id="password" name="password" required>
-                    <button type="button" class="toggle-password" onclick="togglePassword('password', this)">
-                        👁️
+                    <button type="button" class="toggle-password" onclick="togglePassword('password', this)"
+                        aria-label="Mostrar senha" title="Mostrar senha">
+                        <svg class="icon-eye" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z" />
+                            <circle cx="12" cy="12" r="3" />
+                        </svg>
                     </button>
                 </div>
             </div>
@@ -243,10 +291,14 @@
         function togglePassword(inputId, button) {
             const input = document.getElementById(inputId);
             const isPassword = input.type === 'password';
-            
+
             input.type = isPassword ? 'text' : 'password';
-            button.textContent = isPassword ? '🙈' : '👁️';
+            // Trocar ícone SVG
+            button.innerHTML = isPassword
+                ? '<svg class="icon-eye-off" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 3 18 18"/><path d="M10.584 10.587A2 2 0 0 0 12 14a2 2 0 0 0 1.414-3.414"/><path d="M9.88 4.683A9.995 9.995 0 0 1 12 4c7 0 11 8 11 8a18.555 18.555 0 0 1-4.27 5.78M6.61 6.61A18.613 18.613 0 0 0 1 12s4 8 11 8a10.3 10.3 0 0 0 4.53-1.06"/></svg>'
+                : '<svg class="icon-eye" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/></svg>';
             button.title = isPassword ? 'Ocultar senha' : 'Mostrar senha';
+            button.setAttribute('aria-label', button.title);
         }
     </script>
 </body>

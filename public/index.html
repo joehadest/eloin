@@ -42,8 +42,7 @@
     <div class="container">
         <header>
             <img src="logo topo/logo topo.png" alt="Academia Elohim" class="logo">
-            <p>Seu feedback é fundamental para continuarmos evoluindo!</p>
-            <p class="subtitle">Ajude-nos a melhorar nossos serviços de musculação, cardio e crossfit</p>
+            <p>Ajude-nos a melhorar sua experiência conosco</p>
         </header>
         <form id="feedbackForm">
             <div class="form-container">
@@ -53,9 +52,18 @@
                         <input type="text" id="name" name="name" required>
                     </div>
                     <div class="form-group">
-                        <label for="email">E-mail:</label>
-                        <input type="email" id="email" name="email" required>
+                        <label for="whatsapp">WhatsApp:</label>
+                        <input type="tel" id="whatsapp" name="whatsapp" required placeholder="(DD) 9XXXX-XXXX"
+                            pattern="^\(?(\d{2})\)?\s?9?\d{4}-?\d{4}$" inputmode="tel">
+                        <small style="opacity:0.7">Formato sugerido: (11) 91234-5678</small>
                     </div>
+                </div>
+
+                <!-- Idade -->
+                <div class="form-group">
+                    <label for="idade">Idade:</label>
+                    <input type="number" id="idade" name="idade" inputmode="numeric" min="10" max="120" required
+                        placeholder="Informe sua idade">
                 </div>
 
                 <h2 class="section-title">1. Sobre você</h2>
@@ -95,6 +103,23 @@
                         placeholder="Descreva sua experiência..."></textarea>
                 </div>
 
+                <!-- Comorbidades / Condições de saúde / Acompanhamento psicológico -->
+                <div class="form-group">
+                    <label for="comorbidade">Você possui alguma comorbidade, doença crônica, condição imunológica ou
+                        acompanha com psicólogo/psiquiatra?</label>
+                    <div class="radio-group">
+                        <input type="radio" id="comorbidade-sim" name="comorbidade" value="sim" required><label
+                            for="comorbidade-sim">Sim</label>
+                        <input type="radio" id="comorbidade-nao" name="comorbidade" value="nao"><label
+                            for="comorbidade-nao">Não</label>
+                    </div>
+                </div>
+                <div class="form-group" id="comorbidade-detalhes-group" style="display: none;">
+                    <label for="comorbidade-detalhes">Se sim, descreva brevemente:</label>
+                    <textarea id="comorbidade-detalhes" name="comorbidade-detalhes" rows="3"
+                        placeholder="Ex.: diabetes, hipertensão, ansiedade, acompanhamento psicológico, etc."></textarea>
+                </div>
+
                 <div class="form-group">
                     <label for="experiencia-geral">Como você descreveria sua experiência geral na nossa academia até
                         agora?</label>
@@ -129,6 +154,13 @@
                     <label for="razao-escolha">Qual foi a principal razão que fez você escolher treinar aqui?</label>
                     <textarea id="razao-escolha" name="razao-escolha" rows="3" required
                         placeholder="Descreva a principal razão..."></textarea>
+                </div>
+
+                <!-- Motivos para treinar -->
+                <div class="form-group">
+                    <label for="motivos-treino">Quais os principais motivos que te levam a treinar?</label>
+                    <textarea id="motivos-treino" name="motivos-treino" rows="3" required
+                        placeholder="Ex.: saúde, estética, bem-estar, performance, socialização..."></textarea>
                 </div>
 
                 <hr>

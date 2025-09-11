@@ -15,7 +15,7 @@ document.getElementById('feedbackForm').addEventListener('submit', function (eve
     });
 
     // Validação para campos de radio obrigatórios
-    const radioGroups = ['acompanhado-instrutor', 'ouvido', 'satisfacao', 'indicacao'];
+    const radioGroups = ['acompanhado-instrutor', 'ouvido', 'satisfacao', 'indicacao', 'comorbidade'];
 
     radioGroups.forEach(groupName => {
         const radios = document.querySelectorAll(`input[name="${groupName}"]`);
@@ -34,6 +34,26 @@ document.getElementById('feedbackForm').addEventListener('submit', function (eve
             });
         }
     });
+
+    // Validação específica: idade numérica entre 10 e 120
+    const idadeInput = document.getElementById('idade');
+    if (idadeInput) {
+        const idadeVal = Number(idadeInput.value);
+        if (!Number.isFinite(idadeVal) || idadeVal < 10 || idadeVal > 120) {
+            isValid = false;
+            idadeInput.style.borderColor = '#ff4444';
+        }
+    }
+
+    // Se comorbidade = sim, exigir detalhes
+    const comorbidadeSim = document.getElementById('comorbidade-sim');
+    const comorbidadeDetalhes = document.getElementById('comorbidade-detalhes');
+    if (comorbidadeSim && comorbidadeSim.checked) {
+        if (!comorbidadeDetalhes.value.trim()) {
+            isValid = false;
+            comorbidadeDetalhes.style.borderColor = '#ff4444';
+        }
+    }
 
     if (!isValid) {
         // Mostrar mensagem de erro
@@ -88,6 +108,12 @@ document.getElementById('feedbackForm').addEventListener('submit', function (eve
         } else {
             data[key] = value;
         }
+    }
+
+    // Normalização do WhatsApp (somente dígitos)
+    if (data.whatsapp) {
+        const digits = String(data.whatsapp).replace(/\D/g, '');
+        data.whatsapp = digits;
     }
 
     // Aqui você pode enviar os dados para um servidor
@@ -265,6 +291,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const instrutorRadios = document.querySelectorAll('input[name="acompanhado-instrutor"]');
     const instrutorNomeGroup = document.getElementById('instrutor-nome-group');
     const experienciaInstrutorGroup = document.getElementById('experiencia-instrutor-group');
+    // Comorbidade
+    const comorbidadeRadios = document.querySelectorAll('input[name="comorbidade"]');
+    const comorbidadeDetalhesGroup = document.getElementById('comorbidade-detalhes-group');
+    const comorbidadeDetalhes = document.getElementById('comorbidade-detalhes');
 
     instrutorRadios.forEach(radio => {
         radio.addEventListener('change', function () {
@@ -283,6 +313,21 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Limpar valores
                 document.getElementById('instrutor-nome').value = '';
                 document.getElementById('experiencia-instrutor').value = '';
+            }
+        });
+    });
+
+    // Mostrar/ocultar detalhamento de comorbidades
+    comorbidadeRadios.forEach(radio => {
+        radio.addEventListener('change', function () {
+            if (this.value === 'sim') {
+                comorbidadeDetalhesGroup.style.display = 'block';
+                comorbidadeDetalhes.setAttribute('required', 'required');
+            } else {
+                comorbidadeDetalhesGroup.style.display = 'none';
+                comorbidadeDetalhes.removeAttribute('required');
+                comorbidadeDetalhes.value = '';
+                comorbidadeDetalhes.style.borderColor = '';
             }
         });
     });

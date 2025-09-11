@@ -2352,6 +2352,12 @@
 
     <script>
         let allFeedbacks = [];
+        // Auto-refresh state
+        let refreshTimerId = null;
+        const autoRefreshIntervalMs = 5000; // 5s (curto)
+        let lastDataSignature = '';
+        let isRefreshing = false;
+        let pendingRefresh = false;
 
         // ===== LOADING OVERLAY CONTROL =====
         function hideLoadingScreen() {
@@ -2498,6 +2504,18 @@
             if (previousActiveElement && typeof previousActiveElement.focus === 'function') {
                 previousActiveElement.focus();
             }
+            // Se houver atualizações pendentes, reaplicar filtros ou atualizar lista/estatísticas
+            if (pendingRefresh) {
+                pendingRefresh = false;
+                const ratingFilter = document.getElementById('filter-rating')?.value;
+                const npsFilter = document.getElementById('filter-nps')?.value;
+                if (ratingFilter || npsFilter) {
+                    applyFilters();
+                } else {
+                    displayFeedbacks(allFeedbacks);
+                    displayStats(allFeedbacks);
+                }
+            }
             currentModalIndex = null;
             previousActiveElement = null;
             modalTrapHandler = null;
@@ -2603,6 +2621,8 @@
                 allFeedbacks = await response.json();
                 displayFeedbacks(allFeedbacks);
                 displayStats(allFeedbacks);
+                // Definir assinatura inicial dos dados para o auto-refresh
+                lastDataSignature = computeDataSignature(allFeedbacks);
             } catch (error) {
                 console.error('Erro ao carregar feedbacks:', error);
                 // Garantir que o overlay saia mesmo em erro
@@ -2628,6 +2648,71 @@
                     </details>
                 `;
             }
+        }
+
+        // ===== Auto-refresh silencioso =====
+        function computeDataSignature(list) {
+            try {
+                const len = list.length;
+                if (len === 0) return '0:0';
+                let maxTs = 0;
+                for (let i = 0; i < len; i++) {
+                    const ts = Number(new Date(list[i].timestamp || 0).getTime());
+                    if (ts > maxTs) maxTs = ts;
+                }
+                return `${len}:${maxTs}`;
+            } catch (e) {
+                return String(Math.random());
+            }
+        }
+
+        async function refreshFeedbacksSilently() {
+            // Evita trabalho quando a aba não está visível
+            if (document.hidden) return;
+            if (isRefreshing) return;
+            isRefreshing = true;
+            try {
+                const res = await fetchWithRetry('/api/feedbacks?limit=200', { headers: getAuthHeaders() }, 1, 500);
+                if (!res.ok) {
+                    if (res.status === 401) {
+                        // Token expirado: não força logout aqui para não interromper a sessão; apenas para o refresh atual
+                        console.warn('Atualização silenciosa: não autorizado (401).');
+                        return;
+                    }
+                    console.warn('Atualização silenciosa falhou:', res.status, res.statusText);
+                    return;
+                }
+                const data = await res.json();
+                const newSig = computeDataSignature(data);
+                if (newSig !== lastDataSignature) {
+                    lastDataSignature = newSig;
+                    allFeedbacks = data;
+                    const modal = document.getElementById('feedback-detail-modal');
+                    const isModalOpen = modal?.classList.contains('active');
+                    if (isModalOpen) {
+                        pendingRefresh = true;
+                    } else {
+                        const ratingFilter = document.getElementById('filter-rating')?.value;
+                        const npsFilter = document.getElementById('filter-nps')?.value;
+                        if (ratingFilter || npsFilter) {
+                            applyFilters();
+                        } else {
+                            displayFeedbacks(allFeedbacks);
+                            displayStats(allFeedbacks);
+                        }
+                    }
+                }
+            } catch (e) {
+                // Silencioso: log leve
+                console.debug('Atualização silenciosa sem sucesso:', e?.message || e);
+            } finally {
+                isRefreshing = false;
+            }
+        }
+
+        function startAutoRefresh() {
+            if (refreshTimerId) clearInterval(refreshTimerId);
+            refreshTimerId = setInterval(refreshFeedbacksSilently, autoRefreshIntervalMs);
         }
 
         function displayStats(feedbacks) {
@@ -2749,8 +2834,15 @@
             displayStats(allFeedbacks);
         });
 
-        // Carregar feedbacks ao carregar a página (com verificação de auth)
-        checkAuthAndLoadFeedbacks();
+        // Carregar feedbacks ao carregar a página (com verificação de auth) e iniciar auto-refresh
+        checkAuthAndLoadFeedbacks().finally(() => {
+            startAutoRefresh();
+        });
+
+        // Limpar intervalo ao sair da página
+        window.addEventListener('beforeunload', () => {
+            if (refreshTimerId) clearInterval(refreshTimerId);
+        });
 
         // Função para alternar o estado do accordion
         function toggleAccordion(index) {

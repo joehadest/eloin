@@ -2464,6 +2464,7 @@
                     <div class="accordion-actions" style="margin:0;">
                         <button class="action-btn primary copy" onclick="copyFeedback(${index})" aria-label="Copiar feedback" title="Copiar feedback para a área de transferência">📋 Copiar</button>
                         <button class="action-btn secondary print" onclick="printFeedback(${index})" aria-label="Imprimir feedback" title="Imprimir feedback">🖨️ Imprimir</button>
+                        <button class="action-btn danger" onclick="deleteFeedback(${index})" aria-label="Remover feedback" title="Remover este feedback de forma permanente">🗑️ Remover</button>
                     </div>
                 `;
             }
@@ -2490,6 +2491,60 @@
                     }
                 };
                 modal.addEventListener('keydown', modalTrapHandler);
+            }
+        }
+
+        // Remover feedback
+        async function deleteFeedback(index) {
+            const feedback = allFeedbacks[index];
+            if (!feedback) {
+                alert('Feedback inválido.');
+                return;
+            }
+            // Extrair ID corretamente (pode vir como string ou objeto { $oid })
+            let rawId = null;
+            if (typeof feedback._id === 'string') {
+                rawId = feedback._id;
+            } else if (feedback._id && typeof feedback._id === 'object') {
+                if (typeof feedback._id.$oid === 'string') {
+                    rawId = feedback._id.$oid;
+                } else if (feedback._id.toString) {
+                    const t = feedback._id.toString();
+                    if (/^[a-fA-F0-9]{24}$/.test(t)) rawId = t;
+                }
+            }
+            if (!rawId || !/^[a-fA-F0-9]{24}$/.test(rawId)) {
+                console.warn('Formato de _id não reconhecido:', feedback._id);
+                alert('ID do feedback inválido.');
+                return;
+            }
+            const confirmText = `Tem certeza que deseja remover o feedback de "${feedback.name || 'Sem nome'}"? Esta ação não pode ser desfeita.`;
+            if (!confirm(confirmText)) return;
+            try {
+                console.log('[DELETE] Iniciando remoção do feedback', feedback._id);
+                const res = await fetch(`/api/feedbacks/${rawId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...getAuthHeaders?.()
+                    },
+                    credentials: 'include'
+                });
+                console.log('[DELETE] Status resposta:', res.status, res.statusText);
+                if (!res.ok) {
+                    const data = await res.json().catch(()=>({message:'Erro ao remover'}));
+                    throw new Error(data.message || 'Erro ao remover feedback');
+                }
+                console.log('[DELETE] Remoção confirmada no servidor');
+                // Remover localmente
+                allFeedbacks.splice(index, 1);
+                // Atualizar estatísticas e lista
+                displayFeedbacks(allFeedbacks);
+                displayStats(allFeedbacks);
+                closeFeedbackDetailModal();
+            } catch (e) {
+                console.error('[DELETE] Falha ao remover feedback:', e);
+                alert('Falha ao remover feedback: ' + e.message);
             }
         }
 

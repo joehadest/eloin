@@ -1,5 +1,6 @@
 const express = require('express');
 const { MongoClient } = require('mongodb');
+const { ObjectId } = require('mongodb');
 const cors = require('cors');
 const path = require('path');
 const session = require('express-session');
@@ -189,6 +190,26 @@ app.get('/api/feedbacks', requireAuth, async (req, res) => {
             message: error.message,
             details: 'Verifique a conexão com o MongoDB'
         });
+    }
+});
+
+// Rota para deletar um feedback específico - PROTEGIDA
+app.delete('/api/feedbacks/:id', requireAuth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (!id || !ObjectId.isValid(id)) {
+            return res.status(400).json({ success: false, message: 'ID inválido' });
+        }
+        const db = client.db('elohim_fitness');
+        const collection = db.collection('feedbacks');
+        const result = await collection.deleteOne({ _id: new ObjectId(id) });
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ success: false, message: 'Feedback não encontrado' });
+        }
+        res.json({ success: true, message: 'Feedback removido com sucesso', id });
+    } catch (error) {
+        console.error('Erro ao deletar feedback:', error);
+        res.status(500).json({ success: false, message: 'Erro interno do servidor' });
     }
 });
 

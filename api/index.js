@@ -340,24 +340,33 @@ app.get('/api/feedbacks', requireAuthToken, async (req, res) => {
 });
 
 // Rota para deletar feedback (protegida)
-app.delete('/api/feedback/:id', requireAuthToken, async (req, res) => {
+// Mantém compatibilidade com /api/feedback/:id e adiciona /api/feedbacks/:id (plural que o frontend usa)
+const deleteFeedbackHandler = async (req, res) => {
     try {
         const { ObjectId } = require('mongodb');
+        const rawId = (req.params.id || '').trim();
+
+        if (!/^[a-fA-F0-9]{24}$/.test(rawId)) {
+            return res.status(400).json({ error: 'ID inválido' });
+        }
+
         const database = await connectToDatabase();
         const feedbacks = database.collection('feedbacks');
 
-        const result = await feedbacks.deleteOne({ _id: new ObjectId(req.params.id) });
+        const result = await feedbacks.deleteOne({ _id: new ObjectId(rawId) });
 
         if (result.deletedCount === 1) {
-            res.json({ success: true, message: 'Feedback excluído com sucesso!' });
-        } else {
-            res.status(404).json({ error: 'Feedback não encontrado' });
+            return res.json({ success: true, message: 'Feedback excluído com sucesso!' });
         }
+        return res.status(404).json({ error: 'Feedback não encontrado' });
     } catch (error) {
-        console.error('❌ Erro ao excluir feedback:', error);
-        res.status(500).json({ error: 'Erro interno do servidor' });
+        console.error('❌ Erro ao excluir feedback:', error.message);
+        return res.status(500).json({ error: 'Erro interno do servidor' });
     }
-});
+};
+
+app.delete('/api/feedback/:id', requireAuthToken, deleteFeedbackHandler);
+app.delete('/api/feedbacks/:id', requireAuthToken, deleteFeedbackHandler);
 
 // Rota para atualizar credenciais - PROTEGIDA
 app.post('/api/update-credentials', requireAuthToken, async (req, res) => {

@@ -2300,11 +2300,6 @@
                         <span class="btn-text">Formulário</span>
                     </a>
 
-                    <button id="settings-btn" class="action-btn secondary">
-                        <span class="btn-icon">⚙️</span>
-                        <span class="btn-text">Configurações</span>
-                    </button>
-
                     <button id="logout-btn" class="action-btn danger">
                         <span class="btn-icon">🚪</span>
                         <span class="btn-text">Sair</span>
@@ -2952,255 +2947,217 @@ Data: ${date}
             });
         }
 
-        // Função para imprimir feedback
+        // Função para imprimir feedback (layout atualizado e alinhado aos novos campos)
         function printFeedback(index) {
             const feedback = allFeedbacks[index];
             if (!feedback) return;
 
             const date = new Date(feedback.timestamp).toLocaleString('pt-BR');
-            const atividades = Array.isArray(feedback.atividades) ? feedback.atividades : [feedback.atividades].filter(Boolean);
 
             const printWindow = window.open('', '_blank');
             printWindow.document.write(`
                 <!DOCTYPE html>
-                <html>
+                <html lang="pt-BR">
                 <head>
+                    <meta charset="utf-8" />
                     <title>Feedback - ${feedback.name} - Academia Elohim</title>
                     <style>
-                        @media print {
-                            body { margin: 0; }
+                        :root{
+                            --gold:#ffd700; --gold-2:#e6c200; --text:#222; --muted:#555; --line:#e6e6e6;
                         }
-
-                        body {
+                        @page { size: A4; margin: 14mm; }
+                        @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+                        body{
                             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                            color: var(--text);
                             margin: 0;
-                            padding: 30px;
-                            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-                            color: #333;
-                            line-height: 1.6;
                         }
-
-                        .header {
-                            text-align: center;
-                            background: linear-gradient(135deg, #ffd700 0%, #e6c200 100%);
-                            color: #333333;
-                            padding: 30px 20px;
-                            border-radius: 15px;
-                            margin-bottom: 30px;
-                            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
-                            position: relative;
-                            overflow: hidden;
+                        .doc{
+                            display: block;
                         }
-
-                        .header::before {
-                            content: '🏋️';
-                            font-size: 3em;
-                            position: absolute;
-                            top: 10px;
-                            left: 20px;
-                            opacity: 0.3;
-                        }
-
-                        .header h1 {
-                            margin: 0;
-                            font-size: 2.2em;
-                            font-weight: 700;
-                            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-                        }
-
-                        .header p {
-                            margin: 10px 0 0 0;
-                            font-size: 1.1em;
-                            opacity: 0.9;
-                        }
-
-                        .content {
-                            background: white;
-                            border-radius: 15px;
-                            padding: 30px;
-                            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-                            border: 2px solid #ffd700;
-                        }
-
-                        .field {
-                            margin-bottom: 20px;
-                            padding: 15px;
-                            border-bottom: 1px solid #eee;
+                        .header{
                             display: flex;
                             align-items: center;
+                            gap: 16px;
+                            margin-bottom: 16px;
+                            padding-bottom: 12px;
+                            border-bottom: 2px solid var(--gold);
                         }
-
-                        .field:last-child {
-                            border-bottom: none;
+                        .header img{ height: 40px; }
+                        .title{
+                            font-size: 18px; font-weight: 800; margin: 0; letter-spacing: .2px;
                         }
-
-                        .field label {
-                            font-weight: 600;
-                            color: #333333;
-                            min-width: 200px;
-                            font-size: 1em;
-                            display: flex;
-                            align-items: center;
+                        .subtitle{ margin: 2px 0 0; color: var(--muted); font-size: 12px; }
+                        .kpi{
+                            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 8px; margin: 14px 0 18px;
                         }
-
-                        .field label::before {
-                            margin-right: 8px;
-                            font-size: 1.2em;
+                        .kpi .card{
+                            border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;
+                            background: #fff;
                         }
-
-                        .field span {
-                            flex: 1;
-                            font-size: 1em;
-                            color: #555;
+                        .kpi .label{ font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
+                        .kpi .value{ font-size: 16px; font-weight: 700; margin-top: 4px; }
+                        .section{ margin: 18px 0; }
+                        .section h3{
+                            font-size: 14px; margin: 0 0 10px; font-weight: 800;
+                            color: var(--text);
+                            border-left: 4px solid var(--gold);
+                            padding-left: 8px;
                         }
-
-                        .rating-stars {
-                            color: #ffd700;
-                            font-size: 1.2em;
-                            font-weight: bold;
+                        .grid{
+                            display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 10px;
                         }
-
-                        .nps-score {
-                            font-weight: bold;
-                            color: #007bff;
-                            font-size: 1.1em;
-                            background: rgba(0, 123, 255, 0.1);
-                            padding: 5px 10px;
-                            border-radius: 8px;
+                        .field{
+                            border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: #fff;
                         }
-
-                        .atividades-container {
-                            display: flex;
-                            flex-wrap: wrap;
-                            gap: 8px;
-                        }
-
-                        .atividade-tag {
-                            background: linear-gradient(45deg, #ffd700, #e6c200);
-                            color: #333333;
-                            padding: 8px 16px;
-                            border-radius: 20px;
-                            font-size: 0.9em;
-                            font-weight: 500;
-                            text-transform: uppercase;
-                            letter-spacing: 0.5px;
-                            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.2);
-                            display: inline-block;
-                        }
-
-                        .footer {
-                            text-align: center;
-                            margin-top: 30px;
-                            padding: 20px;
-                            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-                            color: #333333;
-                            border-radius: 10px;
-                            font-size: 0.9em;
-                            border: 2px solid #e0e0e0;
-                        }
-
-                        .footer p {
-                            margin: 5px 0;
-                        }
-
-                        .logo {
-                            font-size: 2em;
-                            margin-bottom: 10px;
-                        }
+                        .field label{ display:block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 6px; }
+                        .field .val{ font-size: 13px; font-weight: 600; color: var(--text); }
+                        .field.full{ grid-column: 1 / -1; }
+                        .muted{ color: var(--muted); }
+                        .footer{ margin-top: 20px; font-size: 10px; color: var(--muted); text-align: center; }
+                        .break-avoid{ break-inside: avoid; }
                     </style>
                 </head>
                 <body>
-                    <div class="header">
-                        <h1>🏋️ Academia Elohim</h1>
-                        <p>Feedback de ${feedback.name} - ${date}</p>
-                    </div>
-
-                    <div class="content">
-                        <div class="field">
-                            <label for="nome">👤 Nome:</label>
-                            <span>${feedback.name}</span>
-                        </div>
-
-                        <div class="field">
-                            <label for="whatsapp">📱 WhatsApp:</label>
-                            <span>${feedback.whatsapp || '-'}</span>
-                        </div>
-
-                        <div class="field">
-                            <label for="idade">🎂 Idade:</label>
-                            <span>${feedback.idade}</span>
-                        </div>
-
-                        <div class="field">
-                            <label for="tempo">⏰ Tempo como cliente:</label>
-                            <span>${feedback['tempo-cliente']}</span>
-                        </div>
-
-                        <div class="field">
-                            <label for="frequencia">📅 Frequência:</label>
-                            <span>${feedback.frequencia}</span>
-                        </div>
-
-                        <div class="field">
-                            <label for="atividades">🎯 Atividades:</label>
-                            <div class="atividades-container">
-                                ${atividades.map(atividade => `<span class="atividade-tag">${atividade}</span>`).join('')}
+                    <div class="doc">
+                        <div class="header">
+                            <img src="${location.origin}/logo%20topo/logo%20topo.png" alt="Academia Elohim" />
+                            <div>
+                                <h1 class="title">Academia Elohim — Feedback do Aluno</h1>
+                                <p class="subtitle">${date}</p>
                             </div>
                         </div>
 
-                        <div class="field">
-                            <label for="equipamentos">🏋️ Avaliação Equipamentos:</label>
-                            <span class="rating-stars">${'★'.repeat(feedback['rating-equipamentos'])}${'☆'.repeat(5 - feedback['rating-equipamentos'])}</span>
+                        <div class="kpi">
+                            <div class="card">
+                                <div class="label">Nome</div>
+                                <div class="value">${feedback.name || '-'}</div>
+                            </div>
+                            <div class="card">
+                                <div class="label">WhatsApp</div>
+                                <div class="value">${feedback.whatsapp || '-'}</div>
+                            </div>
+                            <div class="card">
+                                <div class="label">Idade</div>
+                                <div class="value">${feedback.idade || '-'}</div>
+                            </div>
+                            <div class="card">
+                                <div class="label">Tempo de treino</div>
+                                <div class="value">${feedback['tempo-treino'] || '-'}</div>
+                            </div>
+                            <div class="card">
+                                <div class="label">Satisfação</div>
+                                <div class="value">${feedback.satisfacao ?? '-'} / 10</div>
+                            </div>
+                            <div class="card">
+                                <div class="label">Indicação (NPS)</div>
+                                <div class="value">${feedback.indicacao ?? '-'} / 10</div>
+                            </div>
                         </div>
 
-                        <div class="field">
-                            <label for="limpeza">🧹 Avaliação Limpeza:</label>
-                            <span class="rating-stars">${'★'.repeat(feedback['rating-limpeza'])}${'☆'.repeat(5 - feedback['rating-limpeza'])}</span>
+                        <div class="section">
+                            <h3>Informações do Acompanhamento</h3>
+                            <div class="grid">
+                                <div class="field break-avoid">
+                                    <label>Acompanhado por instrutor</label>
+                                    <div class="val">${feedback['acompanhado-instrutor'] || '-'}</div>
+                                </div>
+                                ${feedback['instrutor-nome'] ? `
+                                <div class="field break-avoid">
+                                    <label>Instrutor</label>
+                                    <div class="val">${feedback['instrutor-nome']}</div>
+                                </div>` : ''}
+                                ${feedback['experiencia-instrutor'] ? `
+                                <div class="field full break-avoid">
+                                    <label>Experiência com o instrutor</label>
+                                    <div class="val">${feedback['experiencia-instrutor']}</div>
+                                </div>` : ''}
+                            </div>
                         </div>
 
-                        <div class="field">
-                            <label for="atendimento">👥 Avaliação Atendimento:</label>
-                            <span class="rating-stars">${'★'.repeat(feedback['rating-atendimento'])}${'☆'.repeat(5 - feedback['rating-atendimento'])}</span>
+                        <div class="section">
+                            <h3>Condições de Saúde e Motivações</h3>
+                            <div class="grid">
+                                <div class="field break-avoid">
+                                    <label>Comorbidades/Condições/Acompanhamento psicológico</label>
+                                    <div class="val">${feedback['comorbidade'] || '-'}</div>
+                                </div>
+                                ${feedback['comorbidade-detalhes'] ? `
+                                <div class="field full break-avoid">
+                                    <label>Detalhes</label>
+                                    <div class="val">${feedback['comorbidade-detalhes']}</div>
+                                </div>` : ''}
+                                ${feedback['motivos-treino'] ? `
+                                <div class="field full break-avoid">
+                                    <label>Motivos para treinar</label>
+                                    <div class="val">${feedback['motivos-treino']}</div>
+                                </div>` : ''}
+                            </div>
                         </div>
 
-                        <div class="field">
-                            <label for="horarios">🕐 Avaliação Horários:</label>
-                            <span class="rating-stars">${'★'.repeat(feedback['rating-horarios'])}${'☆'.repeat(5 - feedback['rating-horarios'])}</span>
+                        <div class="section">
+                            <h3>Experiências e Opiniões</h3>
+                            <div class="grid">
+                                <div class="field full break-avoid">
+                                    <label>Experiência geral</label>
+                                    <div class="val">${feedback['experiencia-geral'] || '-'}</div>
+                                </div>
+                                <div class="field full break-avoid">
+                                    <label>Razão da escolha</label>
+                                    <div class="val">${feedback['razao-escolha'] || '-'}</div>
+                                </div>
+                                <div class="field full break-avoid">
+                                    <label>Estrutura física</label>
+                                    <div class="val">${feedback['estrutura-fisica'] || '-'}</div>
+                                </div>
+                                <div class="field full break-avoid">
+                                    <label>Horários e aulas</label>
+                                    <div class="val">${feedback['horarios-aulas'] || '-'}</div>
+                                </div>
+                                <div class="field full break-avoid">
+                                    <label>Ambiente</label>
+                                    <div class="val">${feedback['ambiente'] || '-'}</div>
+                                </div>
+                                <div class="field full break-avoid">
+                                    <label>Atenção da equipe</label>
+                                    <div class="val">${feedback['atencao-equipe'] || '-'}</div>
+                                </div>
+                                <div class="field break-avoid">
+                                    <label>Se sente ouvido</label>
+                                    <div class="val">${feedback['ouvido'] || '-'}</div>
+                                </div>
+                                ${feedback['profissional-destaque'] ? `
+                                <div class="field full break-avoid">
+                                    <label>Profissional/área em destaque</label>
+                                    <div class="val">${feedback['profissional-destaque']}</div>
+                                </div>` : ''}
+                                ${feedback['novos-servicos'] ? `
+                                <div class="field full break-avoid">
+                                    <label>Novos serviços sugeridos</label>
+                                    <div class="val">${feedback['novos-servicos']}</div>
+                                </div>` : ''}
+                                ${feedback.melhorias ? `
+                                <div class="field full break-avoid">
+                                    <label>Melhorias sugeridas</label>
+                                    <div class="val">${feedback.melhorias}</div>
+                                </div>` : ''}
+                                ${feedback.comments ? `
+                                <div class="field full break-avoid">
+                                    <label>Comentários adicionais</label>
+                                    <div class="val">${feedback.comments}</div>
+                                </div>` : ''}
+                            </div>
                         </div>
 
-                        <div class="field">
-                            <label for="conheceu">🔍 Como conheceu:</label>
-                            <span>${feedback['como-conheceu']}</span>
-                        </div>
-
-                        <div class="field">
-                            <label for="nps">📊 NPS:</label>
-                            <span class="nps-score">${feedback.nps}/10</span>
-                        </div>
-
-                        <div class="field">
-                            <label for="rating">⭐ Avaliação Geral:</label>
-                            <span class="rating-stars">${'★'.repeat(feedback.rating)}${'☆'.repeat(5 - feedback.rating)}</span>
-                        </div>
-
-                        ${feedback.melhorias ? `
-                        <div class="field">
-                            <label for="melhorias">💡 Melhorias:</label>
-                            <span>${feedback.melhorias}</span>
-                        </div>
-                        ` : ''}
-
-                        ${feedback.comments ? `
-                        <div class="field">
-                            <label for="comments">💬 Comentários:</label>
-                            <span>${feedback.comments}</span>
-                        </div>
-                        ` : ''}
+                        <div class="footer">Academia Elohim — Documento gerado em ${date}</div>
+                    </div>
+                    <script>
+                        window.addEventListener('load', () => setTimeout(() => window.print(), 50));
+                    <\/script>
                 </body>
                 </html>
             `);
             printWindow.document.close();
-            printWindow.print();
         }
 
         // Configurar botão de logout
@@ -3370,6 +3327,11 @@ Data: ${date}
                 settingsMessage: !!settingsMessage
             });
 
+            // Se não existir botão/modal de configurações, sair silenciosamente
+            if (!(settingsBtn && settingsModal)) {
+                return;
+            }
+
             if (settingsBtn && settingsModal) {
                 console.log('Configurando event listeners...');
 
@@ -3450,8 +3412,6 @@ Data: ${date}
                 }
 
                 console.log('Configurações inicialized com sucesso!');
-            } else {
-                console.error('Botão ou modal de configurações não encontrado');
             }
         }, 100);
 

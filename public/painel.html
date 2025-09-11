@@ -2475,18 +2475,48 @@
             return token ? { 'Authorization': `Bearer ${token}` } : {};
         }
 
+        // Fetch com retry exponencial para lidar com cold start/erros transitórios
+        async function fetchWithRetry(url, options = {}, retries = 4, backoffMs = 600) {
+            let lastError;
+            for (let attempt = 0; attempt <= retries; attempt++) {
+                try {
+                    const res = await fetch(url, options);
+                    // Não retentar em 401 (não autorizado)
+                    if (res.status === 401) return res;
+                    // Retentar em 5xx e falhas de rede
+                    if (!res.ok && res.status >= 500) throw new Error(`HTTP_${res.status}`);
+                    return res;
+                } catch (err) {
+                    lastError = err;
+                    if (attempt === retries) break;
+                    // Atualizar mensagem enquanto tenta novamente
+                    const loadingEl = document.getElementById('loading');
+                    if (loadingEl) {
+                        loadingEl.style.display = 'block';
+                        loadingEl.textContent = 'Conectando ao servidor... tentando novamente';
+                    }
+                    await new Promise(r => setTimeout(r, backoffMs * Math.pow(1.7, attempt)));
+                }
+            }
+            // Simular Response erro final para manter tratamento existente
+            throw lastError || new Error('Falha ao comunicar com o servidor');
+        }
+
         async function checkAuthAndLoadFeedbacks() {
             try {
                 // Verificar se está autenticado
-                const authResponse = await fetch('/api/auth/status', {
-                    headers: getAuthHeaders()
-                });
+                const authResponse = await fetchWithRetry('/api/auth/status', { headers: getAuthHeaders() }, 3, 500);
 
                 if (!authResponse.ok) {
                     console.error('Erro ao verificar autenticação:', authResponse.status);
-                    // Tentar carregar feedbacks mesmo assim, o erro 401 será tratado lá
-                    await loadFeedbacks();
-                    return;
+                    // Se 401 após retries, volte ao login
+                    if (authResponse.status === 401) {
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('authenticated');
+                        window.location.href = '/login';
+                        return;
+                    }
+                    // Para outros erros, prossiga para tentar carregar (pode estar só o endpoint de status indisponível)
                 }
 
                 const authData = await authResponse.json();
@@ -2509,14 +2539,14 @@
                 await loadFeedbacks();
             } catch (error) {
                 console.error('Erro ao verificar autenticação:', error);
-                // Tentar carregar feedbacks mesmo com erro de verificação
+                // Em caso de erro transitório (ex.: cold start), tentar carregar feedbacks com retry
                 await loadFeedbacks();
             }
         }
 
         async function loadFeedbacks() {
             try {
-                const response = await fetch('/api/feedbacks?limit=200', { headers: getAuthHeaders() });
+                const response = await fetchWithRetry('/api/feedbacks?limit=200', { headers: getAuthHeaders() }, 4, 700);
                 if (!response.ok) {
                     if (response.status === 401) {
                         // Não autenticado, limpar dados e redirecionar para login

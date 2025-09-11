@@ -77,6 +77,13 @@
             font-size: 1rem;
         }
 
+        /* Impedir rolagem da página quando um modal estiver aberto */
+        body.modal-active {
+            overflow: hidden !important;
+            touch-action: none;
+            overscroll-behavior: contain;
+        }
+
         :root {
             --primary-color: #ffd700;
             --secondary-color: #e6c200;
@@ -866,14 +873,17 @@
             }
 
             .accordion-actions {
-                flex-direction: column;
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
                 gap: 12px;
                 margin-top: 20px;
                 padding-top: 20px;
             }
 
             .action-btn {
-                width: 100%;
+                width: auto;
+                min-width: 140px;
                 padding: 14px 20px;
                 font-size: 1rem;
                 min-height: 48px;
@@ -2086,191 +2096,165 @@
             font-size: 1.1em;
         }
 
-        /* Modal Styles */
-        .feedbacks-modal {
-            display: none;
+        /* Modal antigo removido */
+
+        /* ===== DETAIL MODAL (visual estilo impressão) ===== */
+        .detail-modal {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10000;
+            inset: 0;
+            z-index: 11000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity .25s ease, visibility .25s ease;
         }
 
-        .feedbacks-modal.active {
-            display: block;
+        .detail-modal.active {
+            opacity: 1;
+            visibility: visible;
         }
 
-        .modal-overlay {
+        .detail-overlay {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
-            z-index: 10001;
-            cursor: pointer;
-            pointer-events: auto;
+            inset: 0;
+            background: rgba(0, 0, 0, .7);
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            transition: opacity .25s ease;
         }
 
-        .modal-content {
+        .detail-modal.active .detail-overlay {
+            opacity: 1;
+        }
+
+        .detail-content {
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
+            transform: translate(-50%, -55%) scale(0.98);
             width: 95%;
-            max-width: 1400px;
-            max-height: 90vh;
-            background: linear-gradient(145deg, #ffffff, #f8f9fa);
-            border-radius: 20px;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
-            border: 2px solid rgba(255, 215, 0, 0.2);
-            z-index: 10002;
+            max-width: 1000px;
+            max-height: 92vh;
+            overflow: hidden;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, .35);
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-            pointer-events: auto;
+            border: 2px solid rgba(255, 215, 0, .25);
+            opacity: 0;
+            transition: opacity .25s ease, transform .25s ease;
         }
 
-        .modal-header {
+        .detail-modal.active .detail-content {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .detail-header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 25px 30px;
-            border-bottom: 2px solid rgba(255, 215, 0, 0.1);
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            justify-content: space-between;
+            gap: 12px;
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(0, 0, 0, .08);
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
         }
 
-        .modal-header h2 {
+        .detail-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .detail-brand img {
+            height: 36px;
+            filter: drop-shadow(0 2px 6px rgba(0, 0, 0, .08));
+        }
+
+        .detail-header h2 {
             margin: 0;
-            font-size: 1.8em;
-            font-weight: 700;
-            color: #333333;
-            background: linear-gradient(45deg, #333333, #555555);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-size: 1.2rem;
+            font-weight: 800;
         }
 
-        .modal-close {
+        .detail-sub {
+            margin: 2px 0 0;
+            color: #666;
+            font-size: .9rem;
+        }
+
+        .detail-close {
             background: none;
             border: none;
-            font-size: 2em;
-            color: #666666;
+            font-size: 1.5rem;
             cursor: pointer;
-            padding: 5px 15px;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-            pointer-events: auto;
-            z-index: 10003;
+            color: #666;
+            border-radius: 8px;
+            padding: 6px 10px;
         }
 
-        .modal-close:hover {
-            background: rgba(255, 68, 68, 0.1);
+        .detail-close:hover {
+            background: rgba(255, 68, 68, .12);
             color: #ff4444;
-            transform: scale(1.1);
         }
 
-        .modal-body {
-            flex: 1;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-            min-height: 0;
-            -webkit-overflow-scrolling: touch;
+        .detail-body {
+            padding: 18px;
+            overflow: auto;
         }
 
-        .modal-body #feedbacks-list {
-            max-height: none;
-            overflow-y: visible;
-            flex: 1;
-            min-height: 0;
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 12px;
         }
 
-        /* Garantir que gaveta antiga fique oculta quando modal estiver ativo */
-        .modal-active #feedbacks-list:not(.modal-body #feedbacks-list) {
-            display: none !important;
+        .d-card {
+            border: 1px solid #e6e6e6;
+            border-radius: 10px;
+            padding: 12px 14px;
+            background: #fff;
         }
 
-        /* Esconder loading e error quando modal estiver ativo */
-        .modal-active #loading,
-        .modal-active #error {
-            display: none !important;
+        .d-card.full {
+            grid-column: 1 / -1;
         }
 
-        /* Responsive Modal */
+        .d-label {
+            font-size: .78rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            margin-bottom: 6px;
+        }
+
+        .d-val {
+            font-size: .98rem;
+            font-weight: 600;
+            color: #222;
+        }
+
         @media (max-width: 768px) {
-            .modal-content {
+            .detail-content {
                 width: 98%;
                 max-height: 95vh;
-                border-radius: 15px;
             }
 
-            .modal-header {
-                padding: 20px;
-                flex-shrink: 0;
-            }
-
-            .modal-header h2 {
-                font-size: 1.5em;
-            }
-
-            .modal-body {
-                padding: 20px;
-                gap: 20px;
-                -webkit-overflow-scrolling: touch;
-            }
-
-            .view-feedbacks-btn {
-                padding: 15px 30px;
-                font-size: 1em;
-            }
-
-            .btn-icon {
-                font-size: 1.3em;
-            }
-
-            .btn-text {
-                font-size: 1em;
+            .detail-actions .accordion-actions {
+                justify-content: center;
             }
         }
 
-        @media (max-width: 480px) {
-            .modal-content {
-                width: 100%;
-                height: 100vh;
-                max-height: 100vh;
-                border-radius: 0;
-                top: 0;
-                left: 0;
-                transform: none;
-            }
+        .detail-actions {
+            padding: 12px 16px 16px;
+            border-top: 1px solid rgba(0, 0, 0, .08);
+        }
 
-            .modal-header {
-                padding: 15px 20px;
-                flex-shrink: 0;
-            }
-
-            .modal-header h2 {
-                font-size: 1.3em;
-            }
-
-            .modal-body {
-                padding: 15px;
-                flex: 1;
-                min-height: 0;
-                overflow-y: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-
-            .modal-body #feedbacks-list {
-                max-height: none;
-                overflow-y: visible;
-            }
+        .detail-actions .accordion-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
         }
     </style>
 </head>
@@ -2361,77 +2345,10 @@
             <p>Não foi possível carregar os feedbacks. Tente novamente mais tarde.</p>
         </div>
 
-        <!-- Botão para abrir modal de feedbacks -->
-        <div class="view-feedbacks-section">
-            <button id="view-feedbacks-btn" class="view-feedbacks-btn">
-                <span class="btn-icon">📋</span>
-                <span class="btn-text">Ver Todos os Feedbacks</span>
-                <span class="feedbacks-count" id="feedbacks-count">0</span>
-            </button>
-        </div>
+        <!-- Lista de feedbacks (exibida na própria página) -->
+        <div id="feedbacks-list"></div>
     </div>
 
-    <!-- Modal de Feedbacks -->
-    <div id="feedbacks-modal" class="feedbacks-modal">
-        <div class="modal-overlay" id="modal-overlay"></div>
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>📋 Todos os Feedbacks - Academia Elohim</h2>
-                <button class="modal-close" id="modal-close">
-                    <span>✕</span>
-                </button>
-            </div>
-
-            <div class="modal-body">
-                <div class="filter-section">
-                    <div class="filter-header">
-                        <h3>🔍 Filtros e Busca</h3>
-                        <p>Encontre feedbacks específicos usando os filtros abaixo</p>
-                    </div>
-
-                    <div class="filter-grid">
-                        <div class="filter-item">
-                            <label for="filter-rating">⭐ Avaliação Geral</label>
-                            <select id="filter-rating">
-                                <option value="">Todas as avaliações</option>
-                                <option value="5">5 estrelas - Excelente</option>
-                                <option value="4">4 estrelas - Muito bom</option>
-                                <option value="3">3 estrelas - Bom</option>
-                                <option value="2">2 estrelas - Regular</option>
-                                <option value="1">1 estrela - Ruim</option>
-                            </select>
-                        </div>
-
-                        <div class="filter-item">
-                            <label for="filter-nps">📊 NPS Score</label>
-                            <select id="filter-nps">
-                                <option value="">Todos os tipos</option>
-                                <option value="9-10">🌟 Promotores (9-10)</option>
-                                <option value="7-8">😐 Neutros (7-8)</option>
-                                <option value="0-6">😞 Detratores (0-6)</option>
-                            </select>
-                        </div>
-
-                        <div class="filter-actions">
-                            <button id="clear-filters" class="filter-btn clear">
-                                <span class="btn-icon">🧹</span>
-                                <span>Limpar Filtros</span>
-                            </button>
-
-                            <button id="expand-all-btn" class="filter-btn expand">
-                                <span class="btn-icon">📂</span>
-                                <span>Expandir Todos</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="feedbacks-list">
-                    <!-- Feedbacks serão inseridos aqui -->
-                </div>
-            </div>
-        </div>
-    </div>
 
     <script>
         let allFeedbacks = [];
@@ -2472,75 +2389,128 @@
             }
         }
 
-        function openFeedbacksModal() {
-            const modal = document.getElementById('feedbacks-modal');
-            if (modal) {
-                modal.classList.add('active');
-                document.body.classList.add('modal-active');
-                lockBodyScroll();
-
-                // Load feedbacks if not already loaded
-                if (allFeedbacks.length === 0) {
-                    loadFeedbacks();
-                } else {
-                    displayFeedbacks(allFeedbacks);
-                }
-            }
-        }
-
-        function closeFeedbacksModal() {
-            const modal = document.getElementById('feedbacks-modal');
-            if (modal) {
-                modal.classList.remove('active');
-                document.body.classList.remove('modal-active');
-                unlockBodyScroll();
-            }
-        }
-
-        // Adicionar função global para debug
-        window.closeFeedbacksModal = closeFeedbacksModal;
-
-        // Função para inicializar os event listeners do modal
-        function initializeModalListeners() {
-            const modalOverlay = document.getElementById('modal-overlay');
-            const modalClose = document.getElementById('modal-close');
-            const viewFeedbacksBtn = document.getElementById('view-feedbacks-btn');
-
-            if (modalOverlay) {
-                modalOverlay.addEventListener('click', closeFeedbacksModal);
-            }
-
-            if (modalClose) {
-                modalClose.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    closeFeedbacksModal();
-                });
-            }
-
-            if (viewFeedbacksBtn) {
-                viewFeedbacksBtn.addEventListener('click', openFeedbacksModal);
-            }
-
-            // ESC key listener
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    closeFeedbacksModal();
-                }
-            });
-        }
-
-        // Inicializar listeners quando o DOM estiver pronto
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeModalListeners);
-        } else {
-            initializeModalListeners();
-        }
+        // Modal antigo de "ver todos" removido
 
         // Update feedback count
         function updateFeedbackCount() {
             const countElement = document.getElementById('feedbacks-count');
-            countElement.textContent = allFeedbacks.length;
+            if (countElement) countElement.textContent = allFeedbacks.length;
         }
+
+        // ===== DETAIL MODAL (visualização de um feedback) =====
+        function renderDetail(feedback) {
+            const date = feedback.timestamp ? new Date(feedback.timestamp).toLocaleString('pt-BR') : '-';
+            const body = document.getElementById('detail-body');
+            const dateEl = document.getElementById('detail-date');
+            if (dateEl) dateEl.textContent = date;
+            if (!body) return;
+            const waDigits = String(feedback.whatsapp || '').replace(/\D/g, '');
+            const waNum = waDigits ? (waDigits.startsWith('55') ? waDigits : `55${waDigits}`) : '';
+            const waLink = waNum ? `https://wa.me/${waNum}` : null;
+            const waDisplay = feedback.whatsapp || '-';
+            body.innerHTML = `
+                <div class="detail-grid">
+                    <div class="d-card"><div class="d-label">Nome</div><div class="d-val">${feedback.name || '-'}</div></div>
+            <div class="d-card"><div class="d-label">WhatsApp</div><div class="d-val">${waLink ? `<a href="${waLink}" target="_blank" rel="noopener">${waDisplay}</a>` : waDisplay}</div></div>
+                    <div class="d-card"><div class="d-label">Idade</div><div class="d-val">${feedback.idade || '-'}</div></div>
+                    <div class="d-card"><div class="d-label">Tempo de treino</div><div class="d-val">${feedback['tempo-treino'] || '-'}</div></div>
+                    <div class="d-card"><div class="d-label">Satisfação</div><div class="d-val">${feedback.satisfacao ?? '-'} / 10</div></div>
+                    <div class="d-card"><div class="d-label">Indicação (NPS)</div><div class="d-val">${feedback.indicacao ?? '-'} / 10</div></div>
+
+                    <div class="d-card"><div class="d-label">Acompanhado por instrutor</div><div class="d-val">${feedback['acompanhado-instrutor'] || '-'}</div></div>
+                    ${feedback['instrutor-nome'] ? `<div class="d-card"><div class="d-label">Instrutor</div><div class="d-val">${feedback['instrutor-nome']}</div></div>` : ''}
+                    ${feedback['experiencia-instrutor'] ? `<div class="d-card full"><div class="d-label">Experiência com o instrutor</div><div class="d-val">${feedback['experiencia-instrutor']}</div></div>` : ''}
+
+                    <div class="d-card"><div class="d-label">Comorbidade/Condição/Psicológico</div><div class="d-val">${feedback['comorbidade'] || '-'}</div></div>
+                    ${feedback['comorbidade-detalhes'] ? `<div class="d-card full"><div class="d-label">Detalhes</div><div class="d-val">${feedback['comorbidade-detalhes']}</div></div>` : ''}
+                    ${feedback['motivos-treino'] ? `<div class="d-card full"><div class="d-label">Motivos para treinar</div><div class="d-val">${feedback['motivos-treino']}</div></div>` : ''}
+
+                    <div class="d-card full"><div class="d-label">Experiência geral</div><div class="d-val">${feedback['experiencia-geral'] || '-'}</div></div>
+                    <div class="d-card full"><div class="d-label">Razão da escolha</div><div class="d-val">${feedback['razao-escolha'] || '-'}</div></div>
+                    <div class="d-card full"><div class="d-label">Estrutura física</div><div class="d-val">${feedback['estrutura-fisica'] || '-'}</div></div>
+                    <div class="d-card full"><div class="d-label">Horários e aulas</div><div class="d-val">${feedback['horarios-aulas'] || '-'}</div></div>
+                    <div class="d-card full"><div class="d-label">Ambiente</div><div class="d-val">${feedback['ambiente'] || '-'}</div></div>
+                    <div class="d-card full"><div class="d-label">Atenção da equipe</div><div class="d-val">${feedback['atencao-equipe'] || '-'}</div></div>
+                    <div class="d-card"><div class="d-label">Se sente ouvido</div><div class="d-val">${feedback['ouvido'] || '-'}</div></div>
+                    ${feedback['profissional-destaque'] ? `<div class="d-card full"><div class="d-label">Profissional/área em destaque</div><div class="d-val">${feedback['profissional-destaque']}</div></div>` : ''}
+                    ${feedback['novos-servicos'] ? `<div class="d-card full"><div class="d-label">Novos serviços sugeridos</div><div class="d-val">${feedback['novos-servicos']}</div></div>` : ''}
+                    ${feedback.melhorias ? `<div class="d-card full"><div class="d-label">Melhorias sugeridas</div><div class="d-val">${feedback.melhorias}</div></div>` : ''}
+                    ${feedback.comments ? `<div class="d-card full"><div class="d-label">Comentários adicionais</div><div class="d-val">${feedback.comments}</div></div>` : ''}
+                </div>
+            `;
+        }
+
+        // Estado e acessibilidade do modal de detalhes
+        let currentModalIndex = null;
+        let previousActiveElement = null;
+        let modalTrapHandler = null;
+
+        function openFeedbackDetailModal(index) {
+            const feedback = allFeedbacks[index];
+            if (!feedback) return;
+            currentModalIndex = index;
+            renderDetail(feedback);
+            const modal = document.getElementById('feedback-detail-modal');
+            // Renderizar ações do modal (copiar/imprimir)
+            const actions = document.getElementById('detail-actions');
+            if (actions) {
+                actions.innerHTML = `
+                    <div class="accordion-actions" style="margin:0;">
+                        <button class="action-btn primary copy" onclick="copyFeedback(${index})" aria-label="Copiar feedback" title="Copiar feedback para a área de transferência">📋 Copiar</button>
+                        <button class="action-btn secondary print" onclick="printFeedback(${index})" aria-label="Imprimir feedback" title="Imprimir feedback">🖨️ Imprimir</button>
+                    </div>
+                `;
+            }
+            if (modal) {
+                modal.classList.add('active');
+                lockBodyScroll();
+                // Gerenciar foco: focar no botão fechar e ativar trap de foco
+                previousActiveElement = document.activeElement;
+                const focusables = modal.querySelectorAll('a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])');
+                const first = focusables[0];
+                const last = focusables[focusables.length - 1];
+                if (first) first.focus();
+                modalTrapHandler = (e) => {
+                    if (e.key !== 'Tab') return;
+                    if (focusables.length === 0) { e.preventDefault(); return; }
+                    // Shift+Tab no primeiro volta para o último
+                    if (e.shiftKey && document.activeElement === first) {
+                        e.preventDefault();
+                        last.focus();
+                        // Tab no último volta para o primeiro
+                    } else if (!e.shiftKey && document.activeElement === last) {
+                        e.preventDefault();
+                        first.focus();
+                    }
+                };
+                modal.addEventListener('keydown', modalTrapHandler);
+            }
+        }
+
+        function closeFeedbackDetailModal() {
+            const modal = document.getElementById('feedback-detail-modal');
+            if (modal) {
+                modal.classList.remove('active');
+                unlockBodyScroll();
+                if (modalTrapHandler) modal.removeEventListener('keydown', modalTrapHandler);
+            }
+            // Restaurar foco ao elemento que abriu o modal
+            if (previousActiveElement && typeof previousActiveElement.focus === 'function') {
+                previousActiveElement.focus();
+            }
+            currentModalIndex = null;
+            previousActiveElement = null;
+            modalTrapHandler = null;
+        }
+
+        // listeners do modal de detalhe
+        document.addEventListener('DOMContentLoaded', () => {
+            const closeBtn = document.getElementById('detail-close');
+            const overlay = document.getElementById('detail-overlay');
+            if (closeBtn) closeBtn.addEventListener('click', closeFeedbackDetailModal);
+            if (overlay) overlay.addEventListener('click', closeFeedbackDetailModal);
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeFeedbackDetailModal(); });
+        });
 
         // Função helper para incluir token de autenticação
         function getAuthHeaders() {
@@ -2716,7 +2686,7 @@
                 return `
                     <div class="accordion-item" data-index="${index}">
                         <div class="accordion-header-row">
-                            <button class="accordion-header" onclick="toggleAccordion(${index})">
+                            <button class="accordion-header" onclick="openFeedbackDetailModal(${index})">
                                 <div>
                                     <div class="accordion-title">${feedback.name}</div>
                                     <div class="accordion-meta">
@@ -2727,101 +2697,8 @@
                                     </div>
                                 </div>
                             </button>
-                            <div class="accordion-actions outside">
-                                <button class="action-btn primary copy" onclick="copyFeedback(${index})" aria-label="Copiar feedback" title="Copiar feedback para a área de transferência">📋 Copiar</button>
-                                <button class="action-btn secondary print" onclick="printFeedback(${index})" aria-label="Imprimir feedback" title="Imprimir feedback">🖨️ Imprimir</button>
-                            </div>
                         </div>
-                        <div class="accordion-content">
-                            <div class="accordion-body">
-                                <div class="feedback-content">
-                                    <div class="feedback-field">
-                                        <label>📱 WhatsApp:</label>
-                                        <span>${feedback.whatsapp || '-'}</span>
-                                    </div>
-                                    <div class="feedback-field">
-                                        <label>⏰ Tempo como cliente:</label>
-                                        <span>${feedback['tempo-treino'] || 'N/A'}</span>
-                                    </div>
-                                    <div class="feedback-field">
-                                        <label>👨‍🏫 Acompanhado por instrutor:</label>
-                                        <span>${feedback['acompanhado-instrutor'] || 'N/A'}</span>
-                                    </div>
-                                    ${feedback['instrutor-nome'] ? `
-                                        <div class="feedback-field">
-                                            <label>👨‍� Nome do instrutor:</label>
-                                            <span>${feedback['instrutor-nome']}</span>
-                                        </div>
-                                    ` : ''}
-                                    ${feedback['experiencia-instrutor'] ? `
-                                        <div class="feedback-field" style="grid-column: 1 / -1;">
-                                            <label>💭 Experiência com instrutor:</label>
-                                            <span>${feedback['experiencia-instrutor']}</span>
-                                        </div>
-                                    ` : ''}
-                                    <div class="feedback-field" style="grid-column: 1 / -1;">
-                                        <label>🌟 Experiência geral:</label>
-                                        <span>${feedback['experiencia-geral'] || 'N/A'}</span>
-                                    </div>
-                                    <div class="feedback-field" style="grid-column: 1 / -1;">
-                                        <label>🎯 Razão da escolha:</label>
-                                        <span>${feedback['razao-escolha'] || 'N/A'}</span>
-                                    </div>
-                                    <div class="feedback-field" style="grid-column: 1 / -1;">
-                                        <label>🏗️ Estrutura física:</label>
-                                        <span>${feedback['estrutura-fisica'] || 'N/A'}</span>
-                                    </div>
-                                    <div class="feedback-field" style="grid-column: 1 / -1;">
-                                        <label>🕐 Horários e aulas:</label>
-                                        <span>${feedback['horarios-aulas'] || 'N/A'}</span>
-                                    </div>
-                                    <div class="feedback-field" style="grid-column: 1 / -1;">
-                                        <label>🏢 Ambiente:</label>
-                                        <span>${feedback['ambiente'] || 'N/A'}</span>
-                                    </div>
-                                    <div class="feedback-field" style="grid-column: 1 / -1;">
-                                        <label>👥 Atenção da equipe:</label>
-                                        <span>${feedback['atencao-equipe'] || 'N/A'}</span>
-                                    </div>
-                                    <div class="feedback-field">
-                                        <label>� Se sente ouvido:</label>
-                                        <span>${feedback['ouvido'] || 'N/A'}</span>
-                                    </div>
-                                    ${feedback['profissional-destaque'] ? `
-                                        <div class="feedback-field" style="grid-column: 1 / -1;">
-                                            <label>⭐ Profissional em destaque:</label>
-                                            <span>${feedback['profissional-destaque']}</span>
-                                        </div>
-                                    ` : ''}
-                                    ${feedback['novos-servicos'] ? `
-                                        <div class="feedback-field" style="grid-column: 1 / -1;">
-                                            <label>🆕 Novos serviços sugeridos:</label>
-                                            <span>${feedback['novos-servicos']}</span>
-                                        </div>
-                                    ` : ''}
-                                    <div class="feedback-field">
-                                        <label>📈 NPS:</label>
-                                        <span class="nps-score">${feedback.indicacao || 'N/A'}/10</span>
-                                    </div>
-                                    <div class="feedback-field">
-                                        <label>⭐ Avaliação Geral:</label>
-                                        <span class="rating-stars">${feedback.satisfacao || 'N/A'}/10</span>
-                                    </div>
-                                    ${feedback.melhorias ? `
-                                        <div class="feedback-field" style="grid-column: 1 / -1;">
-                                            <label>💡 Melhorias:</label>
-                                            <span>${feedback.melhorias}</span>
-                                        </div>
-                                    ` : ''}
-                                    ${feedback.comments ? `
-                                        <div class="feedback-field" style="grid-column: 1 / -1;">
-                                            <label>💬 Comentários:</label>
-                                            <span>${feedback.comments}</span>
-                                        </div>
-                                    ` : ''}
-                                </div>
-                            </div>
-                        </div>
+                        <div class="accordion-content" style="display:none;"></div>
                     </div>
                 `;
             }).join('');
@@ -2955,6 +2832,9 @@ Data: ${date}
             const date = new Date(feedback.timestamp).toLocaleString('pt-BR');
 
             const printWindow = window.open('', '_blank');
+            const waDigits = String(feedback.whatsapp || '').replace(/\D/g, '');
+            const waNum = waDigits ? (waDigits.startsWith('55') ? waDigits : `55${waDigits}`) : '';
+            const waLink = waNum ? `https://wa.me/${waNum}` : null;
             printWindow.document.write(`
                 <!DOCTYPE html>
                 <html lang="pt-BR">
@@ -3035,7 +2915,7 @@ Data: ${date}
                             </div>
                             <div class="card">
                                 <div class="label">WhatsApp</div>
-                                <div class="value">${feedback.whatsapp || '-'}</div>
+                                <div class="value">${waLink ? `<a href="${waLink}" target="_blank" rel="noopener">${feedback.whatsapp}</a>` : (feedback.whatsapp || '-')}</div>
                             </div>
                             <div class="card">
                                 <div class="label">Idade</div>
@@ -3184,6 +3064,27 @@ Data: ${date}
 
 
     </script>
+
+    <!-- Modal de Detalhes do Feedback -->
+    <div id="feedback-detail-modal" class="detail-modal">
+        <div class="detail-overlay" id="detail-overlay"></div>
+        <div class="detail-content" role="dialog" aria-modal="true" aria-labelledby="detail-title">
+            <div class="detail-header">
+                <div class="detail-brand">
+                    <img src="logo topo/logo topo.png" alt="Academia Elohim">
+                    <div>
+                        <h2 id="detail-title">Detalhes do Feedback</h2>
+                        <p id="detail-date" class="detail-sub"></p>
+                    </div>
+                </div>
+                <button class="detail-close" id="detail-close" aria-label="Fechar">✕</button>
+            </div>
+            <div class="detail-body" id="detail-body">
+                <!-- conteúdo injetado via JS -->
+            </div>
+            <div class="detail-actions" id="detail-actions"></div>
+        </div>
+    </div>
 
     <!-- Modal de Configurações -->
     <div id="settings-modal"

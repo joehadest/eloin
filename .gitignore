@@ -4,12 +4,14 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Environment variables
-.env
+# Environment variables - CRITICAL: Never commit these!
+.env*
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+config/.env*
+*.env
 
 # Logs
 logs
@@ -42,14 +44,50 @@ jspm_packages/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variables file
-.env
+# Security and sensitive files
+*.key
+*.pem
+*.p12
+*.p8
+*.cer
+*.crt
+*.der
+*.pfx
+*.p7b
+*.p7r
+*.srl
+config.json
+credentials.json
+secrets.json
+
+# Database dumps
+*.sql
+*.db
+*.sqlite
+*.sqlite3
 
 # IDE files
 .vscode/
 .idea/
 *.swp
 *.swo
+.history/
+
+# Deployment and build files
+.vercel/
+dist/
+build/
+.next/
+.nuxt/
+.vuepress/dist
+.serverless/
+
+# Backup files
+*.backup
+*.bak
+*.tmp
+*~
+.#*
 
 # OS generated files
 .DS_Store
@@ -59,4 +97,9 @@ jspm_packages/
 .Trashes
 ehthumbs.db
 Thumbs.db
-.vercel
+
+# Local development
+.local/
+.cache/
+tmp/
+temp/

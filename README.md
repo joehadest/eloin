@@ -51,9 +51,15 @@ npm install
 ```
 
 3. Configure as variáveis de ambiente:
-   - Copie o arquivo `config/.env.example` para `config/.env`
-   - Configure sua string de conexão do MongoDB
-   - Defina usuário e senha do painel administrativo
+   - Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
+   ```env
+   MONGODB_URI=sua_string_de_conexao_mongodb_atlas
+   ADMIN_USERNAME=seu_usuario_admin
+   ADMIN_PASSWORD=sua_senha_muito_segura
+   SESSION_SECRET=chave_secreta_aleatoria_32_chars+
+   JWT_SECRET=outra_chave_secreta_diferente_32_chars+
+   NODE_ENV=production
+   ```
 
 4. Execute o servidor:
 ```bash
@@ -69,25 +75,35 @@ npm start
 
 ```
 elohim/
-├── config/
-│   └── .env                 # Variáveis de ambiente
+├── api/
+│   └── index.js            # API principal
 ├── public/
 │   ├── index.html          # Formulário de feedback
 │   ├── painel.html         # Painel administrativo
 │   ├── login.html          # Página de login
 │   └── style.css           # Estilos globais
-├── src/
-│   └── server.js           # Servidor Express
+├── .env                    # Variáveis de ambiente (não versionado)
 ├── package.json            # Dependências e scripts
+├── vercel.json             # Configuração Vercel
 └── README.md              # Esta documentação
 ```
 
 ## 🔒 Segurança
 
-- Autenticação baseada em sessão
-- Proteção contra acesso não autorizado
-- Validação de dados no frontend e backend
-- Sanitização de inputs
+- ✅ Autenticação JWT + Session baseada
+- ✅ Proteção contra acesso não autorizado ao painel
+- ✅ Validação de dados no frontend e backend
+- ✅ Sanitização de inputs do usuário
+- ✅ Variáveis de ambiente protegidas (.env não versionado)
+- ✅ Conexão segura com MongoDB Atlas
+- ✅ CORS configurado adequadamente
+- ✅ Rate limiting e retry logic implementados
+
+### ⚠️ Importante para Segurança:
+- **NUNCA** commite o arquivo `.env` 
+- Use senhas fortes para admin e chaves secretas
+- Mantenha suas credenciais do MongoDB seguras
+- Configure adequadamente a whitelist de IPs no MongoDB Atlas
 
 ## 📈 Métricas Disponíveis
 
@@ -120,17 +136,17 @@ Contribuições são bem-vindas! Sinta-se à vontade para abrir issues e pull re
 
 ```
 elohim/
-├── config/
-│   └── .env                    # Variáveis de ambiente (MongoDB URI)
+├── api/
+│   └── index.js               # API serverless para Vercel
 ├── public/
 │   ├── index.html             # Formulário de feedback
-│   ├── painel.html            # Painel de visualização dos feedbacks
-│   ├── script.js              # JavaScript do frontend
+│   ├── painel.html            # Painel administrativo
+│   ├── login.html             # Página de login
 │   └── style.css              # Estilos CSS
-├── src/
-│   └── server.js              # Backend Node.js com Express
+├── .env                       # Variáveis de ambiente (não versionado)
 ├── .gitignore                 # Arquivos ignorados pelo Git
 ├── package.json               # Dependências e scripts
+├── vercel.json                # Configuração para deploy
 └── README.md                  # Documentação
 ```
 
@@ -156,13 +172,16 @@ elohim/
 - **Banco de Dados**: MongoDB Atlas
 - **Outros**: CORS, dotenv
 
-## Configuração do Banco de Dados
+## 💾 Configuração do Banco de Dados
 
-O sistema está configurado para usar MongoDB Atlas. A string de conexão está no arquivo `.env`:
+O sistema utiliza MongoDB Atlas como banco de dados. Para configurar:
 
-```
-MONGODB_URI=mongodb+srv://webpulse:silva225566@elohimformulario.vcympy9.mongodb.net/?retryWrites=true&w=majority&appName=elohimformulario
-```
+1. Crie uma conta no [MongoDB Atlas](https://www.mongodb.com/atlas)
+2. Crie um cluster e obtenha sua string de conexão
+3. Adicione a string no arquivo `.env` como `MONGODB_URI`
+4. Certifique-se de que seu IP está na whitelist do MongoDB Atlas
+
+**Importante:** Nunca exponha suas credenciais do banco de dados em código público.
 
 ## API Endpoints
 

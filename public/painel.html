@@ -75,6 +75,25 @@
             color: #666;
             font-weight: 600;
             font-size: 1rem;
+            text-align: center;
+            min-height: 1.5em;
+        }
+
+        #loading-screen .progress-bar {
+            width: 200px;
+            height: 4px;
+            background: rgba(255, 215, 0, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        #loading-screen .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd700, #e6c200);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+            width: 0%;
         }
 
         /* Impedir rolagem da página quando um modal estiver aberto */
@@ -2266,6 +2285,9 @@
             <img src="logo topo/logo topo.png" alt="Academia Elohim" class="loader-logo">
             <div class="loader-spinner" aria-hidden="true"></div>
             <p class="loader-text">Carregando o painel da Academia Elohim…</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
         </div>
     </div>
 
@@ -2358,6 +2380,48 @@
         let lastDataSignature = '';
         let isRefreshing = false;
         let pendingRefresh = false;
+
+        // Sistema de cache
+        const CACHE_KEY = 'elohim_feedbacks_cache';
+        const CACHE_TIMESTAMP_KEY = 'elohim_feedbacks_cache_timestamp';
+        const CACHE_DURATION = 60 * 1000; // 1 minuto em milissegundos
+
+        // Funções de cache
+        function saveToCache(data) {
+            try {
+                localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+                localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
+            } catch (e) {
+                console.warn('Falha ao salvar cache:', e);
+            }
+        }
+
+        function loadFromCache() {
+            try {
+                const timestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
+                const data = localStorage.getItem(CACHE_KEY);
+                
+                if (!timestamp || !data) return null;
+                
+                const age = Date.now() - parseInt(timestamp);
+                if (age > CACHE_DURATION) {
+                    // Cache expirado
+                    localStorage.removeItem(CACHE_KEY);
+                    localStorage.removeItem(CACHE_TIMESTAMP_KEY);
+                    return null;
+                }
+                
+                return JSON.parse(data);
+            } catch (e) {
+                console.warn('Falha ao carregar cache:', e);
+                return null;
+            }
+        }
+
+        function clearCache() {
+            localStorage.removeItem(CACHE_KEY);
+            localStorage.removeItem(CACHE_TIMESTAMP_KEY);
+        }
 
         // ===== LOADING OVERLAY CONTROL =====
         function hideLoadingScreen() {
@@ -2591,12 +2655,72 @@
             return token ? { 'Authorization': `Bearer ${token}` } : {};
         }
 
+        // Função para atualizar mensagem de loading
+        function updateLoadingMessage(message, progress = null) {
+            const loadingEl = document.getElementById('loading');
+            const loaderText = document.querySelector('#loading-screen .loader-text');
+            const progressFill = document.getElementById('progress-fill');
+            
+            if (loadingEl) {
+                loadingEl.style.display = 'block';
+                loadingEl.textContent = message;
+            }
+            if (loaderText) {
+                loaderText.textContent = message;
+            }
+            if (progressFill && progress !== null) {
+                progressFill.style.width = `${Math.min(100, Math.max(0, progress))}%`;
+            }
+        }
+
+        // Timeout progressivo baseado no tipo de operação
+        function getTimeoutForOperation(operationType, attempt = 0) {
+            const baseTimeouts = {
+                warmup: 5000,
+                auth: 8000,
+                data: 12000,
+                retry: 15000
+            };
+            
+            const base = baseTimeouts[operationType] || 8000;
+            return base + (attempt * 2000); // Aumenta 2s a cada tentativa
+        }
+
         // Fetch com retry exponencial para lidar com cold start/erros transitórios
-        async function fetchWithRetry(url, options = {}, retries = 4, backoffMs = 600) {
+        async function fetchWithRetry(url, options = {}, retries = 4, backoffMs = 600, operationType = 'default') {
             let lastError;
             for (let attempt = 0; attempt <= retries; attempt++) {
                 try {
-                    const res = await fetch(url, options);
+                    // Timeout dinâmico baseado no tipo de operação e tentativa
+                    const timeoutMs = getTimeoutForOperation(operationType, attempt);
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+                    // Mensagens específicas por tentativa
+                    if (attempt === 0) {
+                        if (url.includes('/api/auth/status')) {
+                            updateLoadingMessage('🔐 Verificando autenticação...', 60);
+                        } else if (url.includes('/api/feedbacks')) {
+                            updateLoadingMessage('📊 Carregando feedbacks...', 75);
+                        } else if (url.includes('/api/warmup')) {
+                            updateLoadingMessage('🔥 Aquecendo servidor...', 35);
+                        } else {
+                            updateLoadingMessage('🔄 Conectando ao servidor...', 40);
+                        }
+                    } else {
+                        const waitTime = Math.ceil(backoffMs * Math.pow(1.7, attempt) / 1000);
+                        updateLoadingMessage(`🔄 Reconectando... (${attempt + 1}/${retries + 1}) - ${Math.ceil(timeoutMs/1000)}s`, 30 + (attempt * 10));
+                    }
+
+                    // Combinar opções com o controller de abort
+                    const fetchOptions = {
+                        ...options,
+                        signal: controller.signal
+                    };
+
+                    const res = await fetch(url, fetchOptions);
+                    clearTimeout(timeoutId);
+                    
                     // Não retentar em 401 (não autorizado)
                     if (res.status === 401) return res;
                     // Retentar em 5xx e falhas de rede
@@ -2605,79 +2729,162 @@
                 } catch (err) {
                     lastError = err;
                     if (attempt === retries) break;
-                    // Atualizar mensagem enquanto tenta novamente
-                    const loadingEl = document.getElementById('loading');
-                    if (loadingEl) {
-                        loadingEl.style.display = 'block';
-                        loadingEl.textContent = 'Conectando ao servidor... tentando novamente';
+                    
+                    // Mensagem específica para cada tipo de erro/tentativa
+                    if (err.name === 'AbortError' || err.name === 'TimeoutError') {
+                        updateLoadingMessage(`⏱️ Timeout após ${getTimeoutForOperation(operationType, attempt)/1000}s, tentando novamente...`);
+                    } else if (err.name === 'TypeError' || err.message.includes('fetch')) {
+                        updateLoadingMessage(`🌐 Problema de rede, aguarde ${Math.ceil(backoffMs * Math.pow(1.7, attempt) / 1000)}s...`);
+                    } else {
+                        updateLoadingMessage(`⚠️ Erro: ${err.message.substring(0, 50)}...`);
                     }
+                    
                     await new Promise(r => setTimeout(r, backoffMs * Math.pow(1.7, attempt)));
                 }
             }
             // Simular Response erro final para manter tratamento existente
-            throw lastError || new Error('Falha ao comunicar com o servidor');
+            throw lastError || new Error('Falha ao comunicar com o servidor após múltiplas tentativas');
         }
 
         async function checkAuthAndLoadFeedbacks() {
             try {
-                // Verificar se está autenticado
-                const authResponse = await fetchWithRetry('/api/auth/status', { headers: getAuthHeaders() }, 3, 500);
-
-                if (!authResponse.ok) {
-                    console.error('Erro ao verificar autenticação:', authResponse.status);
-                    // Se 401 após retries, volte ao login
-                    if (authResponse.status === 401) {
-                        localStorage.removeItem('token');
-                        localStorage.removeItem('authenticated');
-                        window.location.href = '/login';
-                        return;
-                    }
-                    // Para outros erros, prossiga para tentar carregar (pode estar só o endpoint de status indisponível)
-                }
-
-                const authData = await authResponse.json();
-                console.log('Status de autenticação:', authData);
-
-                if (!authData.authenticated) {
-                    console.log('Usuário não autenticado, redirecionando...');
-                    // Limpar token inválido
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('authenticated');
-                    // Aguardar um pouco antes de redirecionar para evitar loop
-                    setTimeout(() => {
-                        window.location.href = '/login';
-                    }, 1000);
+                updateLoadingMessage('🚀 Iniciando sistema...');
+                
+                // Verificar se tem token local primeiro (mais rápido)
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    console.log('Nenhum token encontrado, redirecionando para login...');
+                    window.location.href = '/login';
                     return;
                 }
 
-                console.log('Usuário autenticado via:', authData.method);
-                // Se autenticado, carregar feedbacks
+                updateLoadingMessage('🔐 Verificando credenciais...');
+                
+                // Verificar se está autenticado - com timeout otimizado para auth
+                const authResponse = await fetchWithRetry('/api/auth/status', { 
+                    headers: getAuthHeaders()
+                }, 2, 400, 'auth'); // Menos tentativas, intervalo menor
+
+                if (!authResponse.ok) {
+                    console.error('Erro ao verificar autenticação:', authResponse.status);
+                    
+                    if (authResponse.status === 401) {
+                        console.log('Token inválido ou expirado');
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('authenticated');
+                        updateLoadingMessage('🔒 Sessão expirada, redirecionando...');
+                        setTimeout(() => window.location.href = '/login', 1500);
+                        return;
+                    }
+                    
+                    // Para outros erros (500, etc), pular verificação e tentar carregar dados
+                    console.warn('Falha na verificação de auth, tentando carregar dados diretamente...');
+                    updateLoadingMessage('⚠️ Problemas no servidor, carregando dados...');
+                    await loadFeedbacks();
+                    return;
+                }
+
+                try {
+                    const authData = await authResponse.json();
+                    console.log('Status de autenticação:', authData);
+
+                    if (!authData.authenticated) {
+                        console.log('Usuário não autenticado, redirecionando...');
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('authenticated');
+                        updateLoadingMessage('🔒 Acesso negado, redirecionando...');
+                        setTimeout(() => window.location.href = '/login', 1500);
+                        return;
+                    }
+
+                    console.log('Usuário autenticado via:', authData.method);
+                } catch (jsonError) {
+                    console.warn('Resposta de auth inválida, mas continuando...', jsonError);
+                }
+                
+                // Se chegou até aqui, carregar feedbacks
                 await loadFeedbacks();
+                
             } catch (error) {
                 console.error('Erro ao verificar autenticação:', error);
-                // Em caso de erro transitório (ex.: cold start), tentar carregar feedbacks com retry
-                await loadFeedbacks();
+                
+                // Se erro de timeout ou rede, tentar carregar dados mesmo assim
+                if (error.name === 'TimeoutError' || error.message.includes('fetch') || error.message.includes('network')) {
+                    console.log('Erro de rede/timeout, tentando carregar dados diretamente...');
+                    updateLoadingMessage('🌐 Conexão lenta, carregando dados...');
+                    await loadFeedbacks();
+                } else {
+                    // Outros erros, mostrar mensagem e tentar carregar
+                    updateLoadingMessage('⚠️ Problema temporário, carregando...');
+                    await loadFeedbacks();
+                }
             }
         }
 
         async function loadFeedbacks() {
+            // Tentar carregar do cache primeiro
+            const cachedData = loadFromCache();
+            if (cachedData && cachedData.length > 0) {
+                console.log(`📦 Carregando ${cachedData.length} feedbacks do cache`);
+                updateLoadingMessage('📦 Carregando dados salvos...');
+                
+                allFeedbacks = cachedData;
+                displayFeedbacks(allFeedbacks);
+                displayStats(allFeedbacks);
+                lastDataSignature = computeDataSignature(allFeedbacks);
+                
+                // Carregar dados frescos em background
+                loadFreshData();
+                return;
+            }
+
+            // Não há cache válido, carregar do servidor
+            await loadFreshData();
+        }
+
+        async function loadFreshData() {
             try {
-                const response = await fetchWithRetry('/api/feedbacks?limit=200', { headers: getAuthHeaders() }, 4, 700);
+                updateLoadingMessage('📊 Buscando feedbacks atualizados...');
+                
+                const response = await fetchWithRetry('/api/feedbacks?limit=200', { 
+                    headers: getAuthHeaders()
+                }, 3, 800, 'data');
+                
                 if (!response.ok) {
                     if (response.status === 401) {
                         // Não autenticado, limpar dados e redirecionar para login
+                        console.log('Token inválido ao carregar feedbacks');
                         localStorage.removeItem('token');
                         localStorage.removeItem('authenticated');
-                        window.location.href = '/login';
+                        clearCache();
+                        updateLoadingMessage('🔒 Sessão expirada...');
+                        setTimeout(() => window.location.href = '/login', 1500);
                         return;
                     }
                     throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
                 }
-                allFeedbacks = await response.json();
-                displayFeedbacks(allFeedbacks);
-                displayStats(allFeedbacks);
-                // Definir assinatura inicial dos dados para o auto-refresh
-                lastDataSignature = computeDataSignature(allFeedbacks);
+                
+                updateLoadingMessage('✨ Processando dados...');
+                const freshData = await response.json();
+                
+                // Verificar se os dados mudaram
+                const newSignature = computeDataSignature(freshData);
+                if (newSignature !== lastDataSignature) {
+                    allFeedbacks = freshData;
+                    
+                    updateLoadingMessage('🎨 Atualizando interface...');
+                    displayFeedbacks(allFeedbacks);
+                    displayStats(allFeedbacks);
+                    
+                    // Salvar no cache
+                    saveToCache(allFeedbacks);
+                    lastDataSignature = newSignature;
+                    
+                    console.log(`✅ ${allFeedbacks.length} feedbacks atualizados`);
+                } else {
+                    console.log('✅ Dados já estão atualizados');
+                }
+                
             } catch (error) {
                 console.error('Erro ao carregar feedbacks:', error);
                 // Garantir que o overlay saia mesmo em erro
@@ -2686,21 +2893,38 @@
                 document.getElementById('error').style.display = 'block';
 
                 let errorMessage = '❌ Erro ao carregar feedbacks.';
-                if (error.message.includes('fetch')) {
-                    errorMessage += ' Verifique se o servidor está rodando.';
+                let suggestion = '';
+                
+                if (error.name === 'TimeoutError') {
+                    errorMessage = '⏰ Timeout na conexão com o servidor.';
+                    suggestion = 'O servidor pode estar ocupado. Tente recarregar a página.';
+                } else if (error.message.includes('fetch') || error.message.includes('network')) {
+                    errorMessage = '🌐 Problema de conectividade.';
+                    suggestion = 'Verifique sua conexão com a internet e tente novamente.';
+                } else if (error.message.includes('HTTP_5')) {
+                    errorMessage = '🔧 Servidor temporariamente indisponível.';
+                    suggestion = 'Tente recarregar a página em alguns segundos.';
                 } else if (error.message.includes('HTTP')) {
                     errorMessage += ' Problema na conexão com o servidor.';
+                    suggestion = 'Tente recarregar a página.';
                 } else {
-                    errorMessage += ' Tente novamente mais tarde.';
+                    errorMessage += ' Erro inesperado.';
+                    suggestion = 'Tente recarregar a página ou entre em contato com o suporte.';
                 }
 
                 document.getElementById('error').innerHTML = `
-                    <strong>Ops! Algo deu errado</strong>
-                    <p>${errorMessage}</p>
-                    <details style="margin-top: 10px; font-size: 0.9em; color: #ccc;">
-                        <summary>Detalhes técnicos</summary>
-                        <code style="background: rgba(0,0,0,0.2); padding: 5px; border-radius: 5px; display: block; margin-top: 5px;">${error.message}</code>
-                    </details>
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 3em; margin-bottom: 15px;">😔</div>
+                        <h3 style="color: var(--primary-color); margin-bottom: 10px;">${errorMessage}</h3>
+                        <p style="margin-bottom: 20px; color: var(--text-secondary);">${suggestion}</p>
+                        <button onclick="location.reload()" style="background: var(--primary-color); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 1em;">
+                            🔄 Recarregar Página
+                        </button>
+                        <details style="margin-top: 20px; font-size: 0.9em; color: #999;">
+                            <summary style="cursor: pointer;">Detalhes técnicos</summary>
+                            <code style="background: rgba(0,0,0,0.1); padding: 10px; border-radius: 5px; display: block; margin-top: 10px; text-align: left;">${error.message}</code>
+                        </details>
+                    </div>
                 `;
             }
         }
@@ -2889,10 +3113,51 @@
             displayStats(allFeedbacks);
         });
 
-        // Carregar feedbacks ao carregar a página (com verificação de auth) e iniciar auto-refresh
-        checkAuthAndLoadFeedbacks().finally(() => {
-            startAutoRefresh();
-        });
+        // Função para aquecer o servidor (prevenir cold start)
+        async function warmupServer() {
+            try {
+                updateLoadingMessage('🔥 Aquecendo servidor...');
+                const warmupResponse = await fetchWithRetry('/api/warmup', { 
+                    method: 'GET'
+                }, 1, 1000, 'warmup');
+                
+                if (warmupResponse.ok) {
+                    const data = await warmupResponse.json();
+                    console.log('✅ Servidor aquecido:', data);
+                    updateLoadingMessage('✅ Servidor pronto!');
+                } else {
+                    console.log('⚠️ Warmup falhou, mas continuando...');
+                }
+            } catch (error) {
+                console.log('⚠️ Warmup error (normal em cold start):', error.message);
+            }
+        }
+
+        // Inicialização principal com warmup
+        async function initializePanel() {
+            try {
+                updateLoadingMessage('🚀 Iniciando sistema...', 10);
+                
+                // Fazer warmup em paralelo apenas se não há token (primeira visita)
+                const hasToken = localStorage.getItem('token');
+                if (!hasToken) {
+                    updateLoadingMessage('🔥 Primeira visita, aquecendo servidor...', 20);
+                    await warmupServer();
+                } else {
+                    updateLoadingMessage('⚡ Acesso rápido detectado...', 30);
+                }
+                
+                updateLoadingMessage('🔐 Verificando autenticação...', 50);
+                await checkAuthAndLoadFeedbacks();
+                
+                updateLoadingMessage('✅ Carregamento concluído!', 100);
+            } finally {
+                startAutoRefresh();
+            }
+        }
+
+        // Carregar painel com inicialização otimizada
+        initializePanel();
 
         // Limpar intervalo ao sair da página
         window.addEventListener('beforeunload', () => {

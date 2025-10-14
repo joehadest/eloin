@@ -139,17 +139,33 @@ async function connectToDatabase() {
     try {
         if (!client) {
             console.log('🔄 Conectando ao MongoDB...');
-            client = new MongoClient(MONGODB_URI);
+            client = new MongoClient(MONGODB_URI, {
+                // Otimizações para Vercel
+                maxPoolSize: 10,
+                serverSelectionTimeoutMS: 8000, // Timeout menor para falha rápida
+                socketTimeoutMS: 8000,
+                connectTimeoutMS: 8000,
+                maxIdleTimeMS: 30000,
+                // Otimizações de performance
+                retryWrites: true,
+                w: 'majority',
+                compressors: ['zlib'],
+                // Usar versão estável do driver
+                useUnifiedTopology: true
+            });
+            
             await client.connect();
             db = client.db('elohim_fitness');
             console.log('✅ Conectado ao MongoDB Atlas');
 
-            // Criar índice para timestamp se ainda não existir
-            try {
-                await db.collection('feedbacks').createIndex({ timestamp: -1 });
-            } catch (e) {
-                console.warn('Falha ao criar índice em feedbacks.timestamp:', e.message);
-            }
+            // Criar índice para timestamp se ainda não existir (em background)
+            setImmediate(async () => {
+                try {
+                    await db.collection('feedbacks').createIndex({ timestamp: -1 }, { background: true });
+                } catch (e) {
+                    console.warn('Falha ao criar índice em feedbacks.timestamp:', e.message);
+                }
+            });
         }
         return db;
     } catch (error) {
@@ -170,6 +186,39 @@ app.get('/api/test', (req, res) => {
             hasPassword: !!currentCredentials.password
         }
     });
+});
+
+// Endpoint de warmup para prevenir cold starts
+app.get('/api/warmup', async (req, res) => {
+    try {
+        const startTime = Date.now();
+        
+        // Tentar conectar ao banco (isso aquece a conexão)
+        await connectToDatabase();
+        
+        // Carregar credenciais se necessário
+        if (!currentCredentials.username || currentCredentials.username === 'admin') {
+            await loadCredentialsFromDatabase();
+        }
+        
+        const responseTime = Date.now() - startTime;
+        
+        res.json({
+            status: 'warm',
+            message: 'Sistema aquecido com sucesso',
+            responseTime: `${responseTime}ms`,
+            timestamp: new Date().toISOString(),
+            database: db ? 'connected' : 'not connected',
+            credentials: 'loaded'
+        });
+    } catch (error) {
+        res.status(200).json({
+            status: 'warming',
+            message: 'Aquecendo sistema...',
+            error: error.message,
+            timestamp: new Date().toISOString()
+        });
+    }
 });
 
 // Endpoint temporário para inicializar credenciais (versão simplificada)

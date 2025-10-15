@@ -2558,12 +2558,13 @@
                 modalBody.scrollTop = 0;
             }
             
-            // Renderizar ações do modal (copiar/imprimir)
+            // Renderizar ações do modal (copiar/imprimir/compartilhar)
             const actions = document.getElementById('detail-actions');
             if (actions) {
                 actions.innerHTML = `
                     <div class="accordion-actions" style="margin:0;">
                         <button class="action-btn primary copy" onclick="copyFeedback(${index})" aria-label="Copiar feedback" title="Copiar feedback para a área de transferência">📋 Copiar</button>
+                        <button class="action-btn share" onclick="shareFeedback(${index})" aria-label="Compartilhar feedback" title="Compartilhar feedback via WhatsApp" style="background: linear-gradient(135deg, #25D366, #128C7E); color: white;">💬 Compartilhar</button>
                         <button class="action-btn secondary print" onclick="printFeedback(${index})" aria-label="Imprimir feedback" title="Imprimir feedback">🖨️ Imprimir</button>
                         <button class="action-btn danger" onclick="deleteFeedback(${index})" aria-label="Remover feedback" title="Remover este feedback de forma permanente">🗑️ Remover</button>
                     </div>
@@ -3242,10 +3243,14 @@ FEEDBACK - ACADEMIA ELOHIM
 
 Nome: ${feedback.name}
 WhatsApp: ${feedback.whatsapp || '-'}
+Idade: ${feedback.idade || '-'}
 Tempo como cliente: ${feedback['tempo-treino'] || 'N/A'}
 Acompanhado por instrutor: ${feedback['acompanhado-instrutor'] || 'N/A'}
 ${feedback['instrutor-nome'] ? `Nome do instrutor: ${feedback['instrutor-nome']}` : ''}
 ${feedback['experiencia-instrutor'] ? `Experiência com instrutor: ${feedback['experiencia-instrutor']}` : ''}
+${feedback['comorbidade'] ? `Comorbidade/Condição: ${feedback['comorbidade']}` : ''}
+${feedback['comorbidade-detalhes'] ? `Detalhes: ${feedback['comorbidade-detalhes']}` : ''}
+${feedback['motivos-treino'] ? `Motivos para treinar: ${feedback['motivos-treino']}` : ''}
 
 EXPERIÊNCIAS E AVALIAÇÕES:
 Experiência geral: ${feedback['experiencia-geral'] || 'N/A'}
@@ -3268,17 +3273,95 @@ Data: ${date}
             `.trim();
 
             navigator.clipboard.writeText(text).then(() => {
-                // Mostrar feedback visual
-                const btn = document.querySelector(`.accordion-item[data-index="${index}"] .action-btn.primary`);
-                const originalText = btn.innerHTML;
-                btn.innerHTML = '✅ Copiado - Elohim!';
-                setTimeout(() => {
-                    btn.innerHTML = originalText;
-                }, 2000);
+                // Mostrar feedback visual - procurar em múltiplos contextos
+                let btn = document.querySelector(`#detail-actions button.copy`);
+                if (!btn) {
+                    btn = document.querySelector(`.accordion-item[data-index="${index}"] .action-btn.copy`);
+                }
+                
+                if (btn) {
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = '✅ Copiado!';
+                    btn.style.background = 'linear-gradient(135deg, #43e97b, #38f9d7)';
+                    setTimeout(() => {
+                        btn.innerHTML = originalText;
+                        btn.style.background = '';
+                    }, 2000);
+                } else {
+                    // Se não encontrar botão, mostrar notificação genérica
+                    alert('✅ Feedback copiado para a área de transferência!');
+                }
             }).catch(err => {
                 console.error('Erro ao copiar:', err);
-                alert('Erro ao copiar feedback da Academia Elohim para a área de transferência');
+                alert('❌ Erro ao copiar feedback. Tente novamente ou use o botão de imprimir.');
             });
+        }
+
+        // Função para compartilhar feedback via Web Share API (compatível com todos os apps)
+        function shareFeedback(index) {
+            const feedback = allFeedbacks[index];
+            if (!feedback) return;
+
+            const date = new Date(feedback.timestamp).toLocaleString('pt-BR');
+
+            // Texto completo formatado igual ao copyFeedback
+            const text = `
+═══════════════════════════════════════
+📋 FEEDBACK - ACADEMIA ELOHIM
+═══════════════════════════════════════
+
+👤 DADOS PESSOAIS:
+Nome: ${feedback.name}
+WhatsApp: ${feedback.whatsapp || '-'}
+Idade: ${feedback.idade || '-'}
+Tempo como cliente: ${feedback['tempo-treino'] || 'N/A'}
+${feedback['experiencia-instrutor'] ? `Experiência com instrutor: ${feedback['experiencia-instrutor']}` : ''}
+${feedback['comorbidade'] ? `Comorbidade/Condição: ${feedback['comorbidade']}` : ''}
+${feedback['comorbidade-detalhes'] ? `Detalhes: ${feedback['comorbidade-detalhes']}` : ''}
+${feedback['motivos-treino'] ? `Motivos para treinar: ${feedback['motivos-treino']}` : ''}
+
+📊 EXPERIÊNCIAS E AVALIAÇÕES:
+Experiência geral: ${feedback['experiencia-geral'] || 'N/A'}
+Razão da escolha: ${feedback['razao-escolha'] || 'N/A'}
+Estrutura física: ${feedback['estrutura-fisica'] || 'N/A'}
+Horários e aulas: ${feedback['horarios-aulas'] || 'N/A'}
+Ambiente: ${feedback['ambiente'] || 'N/A'}
+Atenção da equipe: ${feedback['atencao-equipe'] || 'N/A'}
+Se sente ouvido: ${feedback['ouvido'] || 'N/A'}
+
+⭐ PONTUAÇÕES:
+NPS (Indicação): ${feedback.indicacao || 'N/A'}/10
+Avaliação Geral (Satisfação): ${feedback.satisfacao || 'N/A'}/10
+
+${feedback['profissional-destaque'] ? `🏆 Profissional em destaque: ${feedback['profissional-destaque']}` : ''}
+${feedback.melhorias ? `💡 Melhorias sugeridas: ${feedback.melhorias}` : ''}
+${feedback['novos-servicos'] ? `🆕 Novos serviços sugeridos: ${feedback['novos-servicos']}` : ''}
+
+📅 Data: ${date}
+
+═══════════════════════════════════════
+Academia Elohim - Seu feedback é importante!
+            `.trim();
+
+            // Verificar se a Web Share API está disponível
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Feedback - Academia Elohim',
+                    text: text
+                    // Removido URL para garantir que o texto completo seja compartilhado
+                }).catch(err => {
+                    // Erro ou usuário cancelou - não mostrar alerta
+                    console.log('Compartilhamento cancelado:', err);
+                });
+            } else {
+                // Fallback: copiar para clipboard se Web Share não estiver disponível
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('✅ Feedback copiado para compartilhar!\n\nVocê pode colar o texto em WhatsApp, Telegram, Email ou qualquer outro aplicativo.');
+                }).catch(err => {
+                    alert('❌ Seu navegador não suporta compartilhamento. Tente atualizar ou use outro navegador.');
+                    console.error('Erro ao compartilhar:', err);
+                });
+            }
         }
 
         // Função para imprimir feedback (layout atualizado e alinhado aos novos campos)
@@ -3929,6 +4012,15 @@ Data: ${date}
 
         .accordion-actions .action-btn.copy {
             background: linear-gradient(135deg, #ffffff, #f7f7f9);
+        }
+
+        .accordion-actions .action-btn.share {
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white;
+        }
+
+        .accordion-actions .action-btn.share:hover {
+            background: linear-gradient(135deg, #128C7E, #075E54);
         }
 
         .accordion-actions .action-btn.print {

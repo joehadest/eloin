@@ -2219,7 +2219,11 @@
 
         .detail-body {
             padding: 18px;
-            overflow: auto;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            flex: 1;
+            min-height: 0;
         }
 
         .detail-grid {
@@ -2256,7 +2260,33 @@
         @media (max-width: 768px) {
             .detail-content {
                 width: 98%;
-                max-height: 95vh;
+                max-height: 90vh;
+                top: 5vh;
+                transform: translate(-50%, 0) scale(0.98);
+            }
+
+            .detail-modal.active .detail-content {
+                transform: translate(-50%, 0) scale(1);
+            }
+
+            .detail-body {
+                max-height: calc(90vh - 140px);
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .detail-header {
+                position: sticky;
+                top: 0;
+                z-index: 10;
+                background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            }
+
+            .detail-actions {
+                position: sticky;
+                bottom: 0;
+                background: #fff;
+                z-index: 10;
             }
 
             .detail-actions .accordion-actions {
@@ -2521,6 +2551,13 @@
             currentModalIndex = index;
             renderDetail(feedback);
             const modal = document.getElementById('feedback-detail-modal');
+            
+            // Resetar scroll para o topo do modal
+            const modalBody = modal.querySelector('.detail-body');
+            if (modalBody) {
+                modalBody.scrollTop = 0;
+            }
+            
             // Renderizar ações do modal (copiar/imprimir)
             const actions = document.getElementById('detail-actions');
             if (actions) {
@@ -2535,6 +2572,14 @@
             if (modal) {
                 modal.classList.add('active');
                 lockBodyScroll();
+                
+                // Resetar scroll do modal após adicionar a classe active
+                requestAnimationFrame(() => {
+                    if (modalBody) {
+                        modalBody.scrollTop = 0;
+                    }
+                });
+                
                 // Gerenciar foco: focar no botão fechar e ativar trap de foco
                 previousActiveElement = document.activeElement;
                 const focusables = modal.querySelectorAll('a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])');
@@ -3661,6 +3706,14 @@ Data: ${date}
                     console.log('Botão configurações clicado!');
                     settingsModal.style.display = 'block';
                     lockBodyScroll(); // Use centralized scroll management
+                    
+                    // Resetar scroll para o topo do modal
+                    const modalContent = settingsModal.querySelector('div[style*="max-height"]');
+                    if (modalContent) {
+                        requestAnimationFrame(() => {
+                            modalContent.scrollTop = 0;
+                        });
+                    }
                 });
 
                 // Fechar modal

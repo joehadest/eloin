@@ -136,6 +136,9 @@ document.getElementById('feedbackForm').addEventListener('submit', function (eve
             submitButton.disabled = false;
             submitButton.style.opacity = '1';
 
+            // Mostrar toast de sucesso
+            showToast('✅ Feedback enviado com sucesso!', 'success');
+
             // Mostrar modal de agradecimento
             showThankYouModal();
         })
@@ -170,6 +173,9 @@ document.getElementById('feedbackForm').addEventListener('submit', function (eve
                     errorMessage.remove();
                 }
             }, 5000);
+
+            // Toast de erro
+            showToast('❌ Não foi possível enviar. Tente novamente.', 'error');
         });
 
     // Simular envio com loading
@@ -209,6 +215,21 @@ document.getElementById('feedbackForm').addEventListener('submit', function (eve
         submitButton.style.opacity = '1';
     }
 });
+
+// Toast helper
+function showToast(message, type = 'success', duration = 3000) {
+    const toast = document.getElementById('toast');
+    if (!toast) return;
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<span class="icon">${type === 'success' ? '✅' : '⚠️'}</span><span class="text">${message}</span>`;
+    requestAnimationFrame(() => {
+        toast.classList.add('show');
+    });
+    clearTimeout(window.__toastTimer);
+    window.__toastTimer = setTimeout(() => {
+        toast.classList.remove('show');
+    }, duration);
+}
 
 // Função para mostrar o modal de agradecimento
 function showThankYouModal() {
@@ -332,3 +353,5 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
+// (Preview temporário removido)

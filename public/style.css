@@ -519,21 +519,29 @@ h2 {
     animation: pulseGlow 3s infinite ease-in-out;
 }
 
+.modal-icon-container {
+    position: relative;
+    display: inline-block;
+    width: 120px;
+    height: 120px;
+}
+
 .modal-checkmark {
     position: absolute;
-    top: 20px;
-    right: 20px;
+    bottom: 0;
+    right: 0;
 }
 
 .checkmark {
-    width: 56px;
-    height: 56px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     display: block;
     stroke-width: 2;
     stroke: var(--success-color);
     stroke-miterlimit: 10;
-    animation: checkmark-fill 0.4s ease-in-out 0.4s forwards, checkmark-scale 0.3s ease-in-out 0.9s both;
+    /* Remover preenchimento para evitar bolinha fora do ícone */
+    animation: checkmark-scale 0.3s ease-in-out 0.6s both;
 }
 
 .checkmark__circle {
@@ -542,7 +550,7 @@ h2 {
     stroke-width: 2;
     stroke-miterlimit: 10;
     stroke: var(--success-color);
-    fill: rgba(76, 175, 80, 0.1);
+    fill: transparent;
     animation: checkmark-stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
 }
 
@@ -815,8 +823,10 @@ h2 {
         padding: 15px 20px 25px;
     }
 
-    .modal-icon {
-        font-size: 2.8em;
+    /* Ajuste do container do ícone sem emoji */
+    .modal-icon-container {
+        width: 100px;
+        height: 100px;
     }
 
     .modal-title {
@@ -852,8 +862,8 @@ h2 {
     }
 
     .checkmark {
-        width: 40px;
-        height: 40px;
+        width: 24px;
+        height: 24px;
     }
 }
 
@@ -881,8 +891,9 @@ h2 {
         padding: 10px 15px 20px;
     }
 
-    .modal-icon {
-        font-size: 2.5em;
+    .modal-icon-container {
+        width: 90px;
+        height: 90px;
     }
 
     .modal-title {
@@ -928,8 +939,8 @@ h2 {
     }
 
     .checkmark {
-        width: 35px;
-        height: 35px;
+        width: 20px;
+        height: 20px;
     }
 }
 
@@ -1504,6 +1515,61 @@ button[type="submit"]:active {
 
 .hidden {
     display: none;
+}
+
+/* ===== Toast (confirmação/erro) ===== */
+.toast {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    transform: translateX(-50%) translateY(120%);
+    background: linear-gradient(145deg, #ffffff, #f8f9fa);
+    border: 1px solid rgba(0,0,0,0.08);
+    box-shadow: 0 14px 40px rgba(0,0,0,0.12);
+    border-left: 6px solid var(--success-color);
+    color: #2c2c2c;
+    padding: 14px 18px;
+    border-radius: 12px;
+    z-index: 10000;
+    min-width: 260px;
+    max-width: 90vw;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    transition: transform .35s cubic-bezier(0.22, 1, 0.36, 1), opacity .25s ease;
+    opacity: 0;
+}
+
+.toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+.toast.success {
+    border-left-color: #43e97b;
+}
+
+.toast.error {
+    border-left-color: #ff6b6b;
+}
+
+.toast .icon {
+    font-size: 1.2rem;
+}
+
+.toast .text {
+    flex: 1;
+    font-size: 0.95rem;
+}
+
+@media (max-width: 480px) {
+    .toast {
+        bottom: 16px;
+        padding: 12px 14px;
+        min-width: auto;
+        max-width: calc(100vw - 24px);
+    }
 }
 
 /* Media Queries para Responsividade */
